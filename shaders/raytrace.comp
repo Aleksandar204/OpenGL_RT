@@ -2,6 +2,9 @@
 layout (local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 layout(rgba32f, location = 0, binding = 0) writeonly uniform image2D img_output;
 
+const float INFINITY = 1.0f / 0.0f;
+const float PI = 3.1415926535f;
+
 struct Ray
 {
     vec3 origin;
@@ -10,11 +13,20 @@ struct Ray
 
 struct HitRecord
 {
+    bool front_face;
     bool hit;
     vec3 point;
     vec3 norm;
     double t;
 };
+
+struct Sphere
+{
+    vec3 center;
+    float radius;
+};
+#define WRLD_LEN 2
+Sphere world[WRLD_LEN];
 
 uint rand;
 const uint a = 1664525u;
@@ -54,17 +66,17 @@ vec3 at(Ray r, float dist)
     return r.origin + dist*r.direction;
 }
 
-HitRecord hit_sphere(float radius, vec3 center, Ray r)
+HitRecord hit_sphere(Sphere s, Ray r)
 {
     float ray_tmin = 0.1f;
     float ray_tmax = 100.0f;
 
     HitRecord rec;
     rec.hit = false;
-    vec3 oc = center - r.origin;
+    vec3 oc = s.center - r.origin;
     float a = length(r.direction) * length(r.direction);
     float h = dot(r.direction, oc);
-    float c = length(oc) * length(oc) - radius*radius;
+    float c = length(oc) * length(oc) - s.radius*s.radius;
     float disc = h*h - a*c;
     if(disc < 0)
     {
@@ -80,36 +92,26 @@ HitRecord hit_sphere(float radius, vec3 center, Ray r)
     rec.hit = true;
     rec.t = root;
     rec.point = at(r,root);
-    rec.norm = (rec.point - center) / radius;
+    rec.norm = (rec.point - s.center) / s.radius;
+    rec.front_face = true;
+    if(dot(r.direction, rec.norm) > 0.0f)
+    {
+        rec.front_face = false;
+        rec.norm = -rec.norm;
+    }
 
     return rec;
 }
 
 vec3 ray_color(Ray r)
 {
-    /*float t = hit_sphere(0.5f,vec3(0.0f,0.0f,-1.0f),r);
-    if(t > 0.0f)
+    for(int i = 0;i < WRLD_LEN; i++)
     {
-        vec3 norm = normalize(at(r,t) - vec3(0.0f,-0.0f,-1.0f));
-        return 0.5*vec3(norm.x+1, norm.y+1, norm.z+1);
-    }
-
-    float t2 = hit_sphere(100.0f,vec3(0.0f,-100.5f,-1.0f),r);
-    if(t2 > 0.0f)
-    {
-        vec3 norm2 = normalize(at(r,t2) - vec3(0.0f,-100.5f,-1.0f));
-        return 0.5*vec3(norm2.x+1, norm2.y+1, norm2.z+1);
-    }*/
-
-    HitRecord s1 = hit_sphere(0.5f,vec3(0.0f,1.0f,-1.0f),r);
-    HitRecord s2 = hit_sphere(100.0f,vec3(0.0f,-100.5f,-1.0f),r);
-    if(s1.hit)
-    {
-        return 0.5*s1.norm;
-    }
-    if(s2.hit)
-    {
-        return 0.5*s2.norm;
+        HitRecord h = hit_sphere(world[i],r);
+        if(h.hit)
+        {
+            return h.norm;
+        }
     }
 
     vec3 dir = normalize(r.direction);
@@ -118,6 +120,9 @@ vec3 ray_color(Ray r)
 }
 
 void main() {
+    world[0] = Sphere(vec3(0.0f,0.0f,-1.0f), 0.5f); // Ovo treba kasnije iz buffera da se cita (SSBO probs)
+    world[1] = Sphere(vec3(0.0f,-100.5f,-1.0f), 100.0f);
+
     rand = gl_GlobalInvocationID.x + gl_LocalInvocationIndex;
     ivec2 texel_coord = ivec2(gl_GlobalInvocationID.xy);
 	ivec2 image_dimensions = imageSize(img_output);
