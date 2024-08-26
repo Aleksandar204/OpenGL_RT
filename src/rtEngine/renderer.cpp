@@ -17,7 +17,7 @@ Renderer::Renderer()
     }
 
     glfwMakeContextCurrent(m_window);
-    glfwSwapInterval(0);
+    // glfwSwapInterval(0);
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
             throw new std::runtime_error("Failed to initialize GLAD");

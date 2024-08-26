@@ -10,6 +10,7 @@ struct Material
     vec3 albedo;
     vec3 emmision_color;
     float emmision_strength;
+    float smoothness;
 };
 
 struct Ray
@@ -34,10 +35,10 @@ struct Sphere
     float radius;
     Material material;
 };
-#define MAX_BOUNCE 2
+#define MAX_BOUNCE 100
 #define SAMPLES_PER_PIXEL 50
-#define WRLD_LEN 3
-#define GLOBAL_LIGHT vec3(0.1f);
+#define WRLD_LEN 4
+#define GLOBAL_LIGHT vec3(0.53, 0.81, 0.92);
 Sphere world[WRLD_LEN];
 
 uint state;
@@ -144,7 +145,9 @@ vec3 trace_ray(Ray r)
             if(hr.hit)
             {
                 cp.origin = hr.point;
-                cp.direction = random_on_sphere() + hr.norm;
+                vec3 diffuse_dir = random_on_sphere() + hr.norm;
+                vec3 specular_dir = reflect(cp.direction, hr.norm);
+                cp.direction = mix(diffuse_dir,specular_dir,hr.hit_material.smoothness);
                 vec3 emmited_light = hr.hit_material.emmision_color * hr.hit_material.emmision_strength;
                 in_light += emmited_light * ray_col;
                 ray_col *= hr.hit_material.albedo;
@@ -205,10 +208,10 @@ vec3 trace_ray(Ray r)
 
 
 void main() {
-    world[0] = Sphere(vec3(-1.0f,0.0f,-1.0f), 0.25f, Material(vec3(0.8f), vec3(1), 10)); // Ovo treba kasnije iz buffera da se cita (SSBO probs)
-    world[1] = Sphere(vec3(0.0f,-100.5f,-1.0f), 100.0f, Material(vec3(0.9f,0.1f,0.1f), vec3(0), 0));
-    world[2] = Sphere(vec3(1.0f,0.0f,-1.0f), 0.5f, Material(vec3(0.1f,0.1f,0.9f), vec3(0), 0));
-
+    world[0] = Sphere(vec3(-10.0f,10.0f,-10.0f), 1.0f, Material(vec3(0.8f), vec3(1), 10, 0)); // Ovo treba kasnije iz buffera da se cita (SSBO probs)
+    world[1] = Sphere(vec3(0.0f,-100.5f,-1.0f), 100.0f, Material(vec3(0.9f,0.1f,0.1f), vec3(0), 0, 0));
+    world[2] = Sphere(vec3(1.0f,0.0f,-1.0f), 0.5f, Material(vec3(0.9f), vec3(0), 0, 0.5));
+    world[3] = Sphere(vec3(-1.0f,0.0f,-1.0f), 0.5f, Material(vec3(0.9f), vec3(0), 0, 1));
     
     ivec2 texel_coord = ivec2(gl_GlobalInvocationID.xy);
 	ivec2 image_dimensions = imageSize(img_output);
