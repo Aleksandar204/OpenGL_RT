@@ -5,6 +5,13 @@ layout(rgba32f, location = 0, binding = 0) writeonly uniform image2D img_output;
 const float INFINITY = 1.0f / 0.0f;
 const float PI = 3.1415926535f;
 
+struct Material
+{
+    vec3 albedo;
+    vec3 emmision_color;
+    float emmision_strength;
+};
+
 struct Ray
 {
     vec3 origin;
@@ -17,26 +24,28 @@ struct HitRecord
     bool hit;
     vec3 point;
     vec3 norm;
-    double t;
+    float t;
+    Material hit_material;
 };
 
 struct Sphere
 {
     vec3 center;
     float radius;
+    Material material;
 };
-#define MAX_BOUNCE 5
-#define SAMPLES_PER_PIXEL 100
-#define WRLD_LEN 2
+#define MAX_BOUNCE 2
+#define SAMPLES_PER_PIXEL 50
+#define WRLD_LEN 3
+#define GLOBAL_LIGHT vec3(0.1f);
 Sphere world[WRLD_LEN];
 
-vec2 co;
+uint state;
 
-float randomFloat(){
-
-    float val = fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
-    co = vec2(co.y,val);
-    return val;
+float randomFloat()
+{
+    state *= (state + 195439) * (state + 124395) * (state + 845921);
+    return state / 4294967295.0;
 }
 
 float random_normal_dist()
@@ -92,6 +101,7 @@ HitRecord hit_sphere(Sphere s, Ray r)
     rec.point = at(r,root);
     rec.norm = (rec.point - s.center) / s.radius;
     rec.front_face = true;
+    rec.hit_material = s.material;
     if(dot(r.direction, rec.norm) > 0.0f)
     {
         rec.front_face = false;
@@ -101,7 +111,56 @@ HitRecord hit_sphere(Sphere s, Ray r)
     return rec;
 }
 
-vec3 ray_color(Ray r, out HitRecord h)
+HitRecord calculate_collision(Ray r)
+{
+    HitRecord closestHit;
+    closestHit.hit = false;
+    closestHit.hit_material.albedo = vec3(0);
+    float closest = INFINITY;
+    for(int i = 0;i<WRLD_LEN;i++)
+    {
+        HitRecord temp = hit_sphere(world[i], r);
+        if(temp.hit && temp.t < closest)
+        {
+            closestHit = temp;
+            closestHit.hit_material = temp.hit_material;
+            closest = temp.t;
+        }
+    }
+    return closestHit;
+}
+
+vec3 trace_ray(Ray r)
+{
+    vec3 pixel_color = vec3(0,0,0);
+    for(int i = 0; i < SAMPLES_PER_PIXEL; i++)
+    {
+        Ray cp = r;
+        vec3 ray_col = vec3(1);
+        vec3 in_light = vec3(0);
+        for(int j = 0; j< MAX_BOUNCE;j++)
+        {
+            HitRecord hr = calculate_collision(cp);
+            if(hr.hit)
+            {
+                cp.origin = hr.point;
+                cp.direction = random_on_sphere() + hr.norm;
+                vec3 emmited_light = hr.hit_material.emmision_color * hr.hit_material.emmision_strength;
+                in_light += emmited_light * ray_col;
+                ray_col *= hr.hit_material.albedo;
+            }
+            else
+            {
+                in_light += ray_col * GLOBAL_LIGHT;
+                break;
+            }
+        }
+        pixel_color += in_light;
+    }
+    return pixel_color / SAMPLES_PER_PIXEL;
+}
+
+/*vec3 ray_color(Ray r, out HitRecord h)
 {
     for(int i = 0;i < WRLD_LEN; i++)
     {
@@ -141,16 +200,19 @@ vec3 trace_ray(Ray r)
         pixel_color += col;
     }
     return pixel_color / SAMPLES_PER_PIXEL;
-}
+}*/
+
+
 
 void main() {
-    world[0] = Sphere(vec3(0.0f,0.0f,-1.0f), 0.5f); // Ovo treba kasnije iz buffera da se cita (SSBO probs)
-    world[1] = Sphere(vec3(0.0f,-100.5f,-1.0f), 100.0f);
+    world[0] = Sphere(vec3(-1.0f,0.0f,-1.0f), 0.25f, Material(vec3(0.8f), vec3(1), 10)); // Ovo treba kasnije iz buffera da se cita (SSBO probs)
+    world[1] = Sphere(vec3(0.0f,-100.5f,-1.0f), 100.0f, Material(vec3(0.9f,0.1f,0.1f), vec3(0), 0));
+    world[2] = Sphere(vec3(1.0f,0.0f,-1.0f), 0.5f, Material(vec3(0.1f,0.1f,0.9f), vec3(0), 0));
 
-    co = gl_GlobalInvocationID.xy;
+    
     ivec2 texel_coord = ivec2(gl_GlobalInvocationID.xy);
 	ivec2 image_dimensions = imageSize(img_output);
-
+    state = gl_GlobalInvocationID.x + image_dimensions.x * gl_GlobalInvocationID.y;
     vec3 camera_center = vec3(0.0f,0.0f,0.0f);
 
     float focal_length = 1.0f;
@@ -166,6 +228,5 @@ void main() {
     r.direction = viewport_location - camera_center;
 
     vec3 r_color = trace_ray(r);
-
     imageStore(img_output, texel_coord, vec4(r_color, 1.0f));
 }
