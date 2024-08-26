@@ -53,6 +53,8 @@ Renderer::Renderer()
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGBA, GL_FLOAT, nullptr);
     glBindImageTexture(0, quad_texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
     glBindTexture(GL_TEXTURE_2D,0);
+
+    glEnable(GL_FRAMEBUFFER_SRGB);
 }
 
 Renderer::~Renderer()

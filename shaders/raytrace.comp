@@ -25,20 +25,18 @@ struct Sphere
     vec3 center;
     float radius;
 };
+#define MAX_BOUNCE 5
+#define SAMPLES_PER_PIXEL 100
 #define WRLD_LEN 2
 Sphere world[WRLD_LEN];
 
-uint rand;
-const uint a = 1664525u;
-const uint c = 1013904223u;
+vec2 co;
 
-uint lcg(uint x) {
-    return a * x + c;
-}
+float randomFloat(){
 
-float randomFloat() {
-    rand = lcg(rand);
-    return float(rand & 0x00FFFFFFu) / float(0x01000000u);
+    float val = fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
+    co = vec2(co.y,val);
+    return val;
 }
 
 float random_normal_dist()
@@ -68,7 +66,7 @@ vec3 at(Ray r, float dist)
 
 HitRecord hit_sphere(Sphere s, Ray r)
 {
-    float ray_tmin = 0.1f;
+    float ray_tmin = 0.001f;
     float ray_tmax = 100.0f;
 
     HitRecord rec;
@@ -103,27 +101,53 @@ HitRecord hit_sphere(Sphere s, Ray r)
     return rec;
 }
 
-vec3 ray_color(Ray r)
+vec3 ray_color(Ray r, out HitRecord h)
 {
     for(int i = 0;i < WRLD_LEN; i++)
     {
-        HitRecord h = hit_sphere(world[i],r);
+        h = hit_sphere(world[i],r);
         if(h.hit)
         {
-            return h.norm;
+            return vec3(0.4f);
         }
     }
 
     vec3 dir = normalize(r.direction);
     float a = 0.5f*(dir.y + 1.0f);
     return (1.0f-a)*vec3(1.0f, 1.0f, 1.0f) + a*vec3(0.5f, 0.7f, 1.0f);
+    //return vec3(0.5f,0.75f,0.95f);
+}
+
+vec3 trace_ray(Ray r)
+{
+    vec3 pixel_color = vec3(0,0,0);
+    HitRecord hr;
+    for(int i = 0;i < SAMPLES_PER_PIXEL; i++)
+    {
+        Ray cp = r;
+        vec3 col = vec3(1);
+        for(int j = 0;j<MAX_BOUNCE;j++)
+        {
+            vec3 temp = ray_color(cp, hr);
+            col *= temp;
+            if(!hr.hit)
+                break;
+            else
+            {
+                cp.origin = hr.point;
+                cp.direction = random_on_sphere() + hr.norm;
+            }
+        }
+        pixel_color += col;
+    }
+    return pixel_color / SAMPLES_PER_PIXEL;
 }
 
 void main() {
     world[0] = Sphere(vec3(0.0f,0.0f,-1.0f), 0.5f); // Ovo treba kasnije iz buffera da se cita (SSBO probs)
     world[1] = Sphere(vec3(0.0f,-100.5f,-1.0f), 100.0f);
 
-    rand = gl_GlobalInvocationID.x + gl_LocalInvocationIndex;
+    co = gl_GlobalInvocationID.xy;
     ivec2 texel_coord = ivec2(gl_GlobalInvocationID.xy);
 	ivec2 image_dimensions = imageSize(img_output);
 
@@ -141,7 +165,7 @@ void main() {
     r.origin = camera_center;
     r.direction = viewport_location - camera_center;
 
-    vec3 r_color = ray_color(r);
+    vec3 r_color = trace_ray(r);
 
     imageStore(img_output, texel_coord, vec4(r_color, 1.0f));
 }
