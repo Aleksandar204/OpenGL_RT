@@ -1,16 +1,8 @@
-#include<rtEngine/renderer.hpp>
+#include<rtEngine/engine.hpp>
 
 int main()
 {
-    Renderer rend;
-    while(!glfwWindowShouldClose(rend.m_window))
-    {
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        rend.renderFrame();
-        
-        glfwPollEvents();
-        glfwSwapBuffers(rend.m_window);
-    }
+    Engine e;
+    e.run();
     return 0;
 }

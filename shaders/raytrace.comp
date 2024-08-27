@@ -35,8 +35,8 @@ struct Sphere
     float radius;
     Material material;
 };
-#define MAX_BOUNCE 100
-#define SAMPLES_PER_PIXEL 50
+#define MAX_BOUNCE 8
+#define SAMPLES_PER_PIXEL 32
 #define WRLD_LEN 4
 #define GLOBAL_LIGHT vec3(0.53, 0.81, 0.92);
 Sphere world[WRLD_LEN];
@@ -210,21 +210,34 @@ vec3 trace_ray(Ray r)
 void main() {
     world[0] = Sphere(vec3(-10.0f,10.0f,-10.0f), 1.0f, Material(vec3(0.8f), vec3(1), 10, 0)); // Ovo treba kasnije iz buffera da se cita (SSBO probs)
     world[1] = Sphere(vec3(0.0f,-100.5f,-1.0f), 100.0f, Material(vec3(0.9f,0.1f,0.1f), vec3(0), 0, 0));
-    world[2] = Sphere(vec3(1.0f,0.0f,-1.0f), 0.5f, Material(vec3(0.9f), vec3(0), 0, 0.5));
+    world[2] = Sphere(vec3(1.0f,0.0f,-1.0f), 0.5f, Material(vec3(0.9f), vec3(0), 0, 0));
     world[3] = Sphere(vec3(-1.0f,0.0f,-1.0f), 0.5f, Material(vec3(0.9f), vec3(0), 0, 1));
     
     ivec2 texel_coord = ivec2(gl_GlobalInvocationID.xy);
 	ivec2 image_dimensions = imageSize(img_output);
     state = gl_GlobalInvocationID.x + image_dimensions.x * gl_GlobalInvocationID.y;
-    vec3 camera_center = vec3(0.0f,0.0f,0.0f);
 
+    // Camera parameters
+    vec3 camera_center = vec3(0.0f,0.0f,0.0f);
+    vec3 look_at = vec3(0,0,0);
     float focal_length = 1.0f;
-    float viewport_height = 2.0f;
+    float fov = 90.0f;
+
+    vec3 w,u,v;
+    w = normalize(camera_center - look_at);
+    u = normalize(cross(vec3(0,1,0),w));
+    v = cross(w,u);
+
+    float theta = radians(fov);
+    float viewport_height = 2 * focal_length * tan(theta / 2);
     float viewport_width = viewport_height * (float(image_dimensions.x) / image_dimensions.y);
 
-    vec3 viewport_bottom_left = camera_center - vec3(viewport_width/2.0f,viewport_height/2.0f,focal_length);
+    vec3 viewport_u = viewport_width * u;
+    vec3 viewport_v = viewport_height * v;
 
-    vec3 viewport_location = viewport_bottom_left + vec3(texel_coord.x * (viewport_width/image_dimensions.x), texel_coord.y * (viewport_height/image_dimensions.y), 0.0f);
+    vec3 viewport_bottom_left = camera_center - focal_length * w - viewport_u/2 - viewport_v/2;
+
+    vec3 viewport_location = viewport_bottom_left + texel_coord.x * (viewport_u/image_dimensions.x) + texel_coord.y * (viewport_v/image_dimensions.y);
 
     Ray r;
     r.origin = camera_center;

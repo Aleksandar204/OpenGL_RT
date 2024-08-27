@@ -68,6 +68,7 @@ Renderer::~Renderer()
 
 void Renderer::renderFrame()
 {
+    glClear(GL_COLOR_BUFFER_BIT);
     renderShader->use();
     glDispatchCompute((unsigned int)WINDOW_WIDTH/8,(unsigned int)WINDOW_HEIGHT/8,1);
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
@@ -80,4 +81,6 @@ void Renderer::renderFrame()
 
     glDrawArrays(GL_TRIANGLE_STRIP, 0,4);
     glBindVertexArray(0);
+
+    glfwSwapBuffers(m_window);
 }
