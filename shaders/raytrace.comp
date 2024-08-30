@@ -24,13 +24,6 @@ struct HitRecord
     Material hit_material;
 };
 
-struct Sphere
-{
-    vec3 center;
-    float radius;
-    Material material;
-};
-
 struct Vertex
 {
     vec3 position;
@@ -61,17 +54,15 @@ layout(std430, binding = 3) buffer meshes
     Mesh data_meshes[];
 };
 
-uniform uint mesh_count;
+uniform int mesh_count;
 
 const float INFINITY = 1.0f / 0.0f;
 const float PI = 3.1415926535f;
 
 
 #define MAX_BOUNCE 8
-#define SAMPLES_PER_PIXEL 32
-#define WRLD_LEN 4
+#define SAMPLES_PER_PIXEL 4
 #define GLOBAL_LIGHT vec3(0.53, 0.81, 0.92);
-Sphere world[WRLD_LEN];
 
 uint state;
 
@@ -106,42 +97,33 @@ vec3 at(Ray r, float dist)
     return r.origin + dist*r.direction;
 }
 
-HitRecord hit_sphere(Sphere s, Ray r)
+HitRecord hit_triangle(int ind1, int ind2, int ind3, Ray r)
 {
-    float ray_tmin = 0.001f;
-    float ray_tmax = 100.0f;
+    Vertex vertA = data_vertices[ind1];
+    Vertex vertB = data_vertices[ind2];
+    Vertex vertC = data_vertices[ind3];
 
-    HitRecord rec;
-    rec.hit = false;
-    vec3 oc = s.center - r.origin;
-    float a = length(r.direction) * length(r.direction);
-    float h = dot(r.direction, oc);
-    float c = length(oc) * length(oc) - s.radius*s.radius;
-    float disc = h*h - a*c;
-    if(disc < 0)
-    {
-        return rec;
-    }
-    float root = (h - sqrt(disc)) / a;
-    if(root <= ray_tmin || root >= ray_tmax) // Min i max za ray
-    {
-        root = (h + sqrt(disc)) / a;
-        if(root <= ray_tmin || root >= ray_tmax)
-            return rec;
-    }
-    rec.hit = true;
-    rec.t = root;
-    rec.point = at(r,root);
-    rec.norm = (rec.point - s.center) / s.radius;
-    rec.front_face = true;
-    rec.hit_material = s.material;
-    if(dot(r.direction, rec.norm) > 0.0f)
-    {
-        rec.front_face = false;
-        rec.norm = -rec.norm;
-    }
+    vec3 edgeAB = vertB.position - vertA.position;
+    vec3 edgeAC = vertC.position - vertA.position;
 
-    return rec;
+    vec3 normal_vec = cross(edgeAB,edgeAC);
+    vec3 ao = r.origin - vertA.position;
+    vec3 dao = cross(ao, r.direction);
+
+    float det = -dot(r.direction, normal_vec);
+    float inv_det = 1 / det;
+
+    float dist = dot(ao, normal_vec) * inv_det;
+    float u = dot(edgeAC, dao) * inv_det;
+    float v = -dot(edgeAB, dao) * inv_det;
+    float w = 1 - u - v;
+
+    HitRecord result;
+    result.hit = det >= 1e-6 && dist >= 0 && u >= 0 && v >= 0 && w >= 0;
+    result.t = dist;
+    result.point = at(r, dist);
+    result.norm = normalize(vertA.normal * w + vertB.normal * u + vertC.normal * v);
+    return result;
 }
 
 HitRecord calculate_collision(Ray r)
@@ -150,14 +132,18 @@ HitRecord calculate_collision(Ray r)
     closestHit.hit = false;
     closestHit.hit_material.albedo = vec3(0);
     float closest = INFINITY;
-    for(int i = 0;i<WRLD_LEN;i++)
+    for(int i = 0;i< mesh_count;i++)
     {
-        HitRecord temp = hit_sphere(world[i], r);
-        if(temp.hit && temp.t < closest)
+        for(int j = 0; j < data_meshes[i].indices_num; j += 3)
         {
-            closestHit = temp;
-            closestHit.hit_material = temp.hit_material;
-            closest = temp.t;
+            HitRecord temp = hit_triangle(data_indices[data_meshes[i].indices_start + j], data_indices[data_meshes[i].indices_start + j +1], data_indices[data_meshes[i].indices_start + j +2], r);
+
+            if(temp.hit && temp.t < closest)
+            {
+                closestHit = temp;
+                closestHit.hit_material = data_meshes[i].material;
+                closest = temp.t;
+            }
         }
     }
     return closestHit;
@@ -195,63 +181,14 @@ vec3 trace_ray(Ray r)
     return pixel_color / SAMPLES_PER_PIXEL;
 }
 
-/*vec3 ray_color(Ray r, out HitRecord h)
-{
-    for(int i = 0;i < WRLD_LEN; i++)
-    {
-        h = hit_sphere(world[i],r);
-        if(h.hit)
-        {
-            return vec3(0.4f);
-        }
-    }
-
-    vec3 dir = normalize(r.direction);
-    float a = 0.5f*(dir.y + 1.0f);
-    return (1.0f-a)*vec3(1.0f, 1.0f, 1.0f) + a*vec3(0.5f, 0.7f, 1.0f);
-    //return vec3(0.5f,0.75f,0.95f);
-}
-
-vec3 trace_ray(Ray r)
-{
-    vec3 pixel_color = vec3(0,0,0);
-    HitRecord hr;
-    for(int i = 0;i < SAMPLES_PER_PIXEL; i++)
-    {
-        Ray cp = r;
-        vec3 col = vec3(1);
-        for(int j = 0;j<MAX_BOUNCE;j++)
-        {
-            vec3 temp = ray_color(cp, hr);
-            col *= temp;
-            if(!hr.hit)
-                break;
-            else
-            {
-                cp.origin = hr.point;
-                cp.direction = random_on_sphere() + hr.norm;
-            }
-        }
-        pixel_color += col;
-    }
-    return pixel_color / SAMPLES_PER_PIXEL;
-}*/
-
-
-
-void main() {
-    world[0] = Sphere(vec3(-10.0f,10.0f,-10.0f), 1.0f, Material(vec3(0.8f), vec3(1), 10, 0)); // Ovo treba kasnije iz buffera da se cita (SSBO probs)
-    world[1] = Sphere(vec3(0.0f,-100.5f,-1.0f), 100.0f, Material(vec3(0.9f,0.1f,0.1f), vec3(0), 0, 0));
-    world[2] = Sphere(vec3(1.0f,0.0f,-1.0f), 0.5f, Material(vec3(0.9f), vec3(0), 0, 0));
-    world[3] = Sphere(vec3(-1.0f,0.0f,-1.0f), 0.5f, Material(vec3(0.9f), vec3(0), 0, 1));
-    
+void main() {    
     ivec2 texel_coord = ivec2(gl_GlobalInvocationID.xy);
 	ivec2 image_dimensions = imageSize(img_output);
     state = gl_GlobalInvocationID.x + image_dimensions.x * gl_GlobalInvocationID.y;
 
     // Camera parameters
     vec3 camera_center = vec3(0.0f,0.0f,0.0f);
-    vec3 look_at = vec3(0,0,-1);
+    vec3 look_at = vec3(-1,0,0);
     float focal_length = 1.0f;
     float fov = 90.0f;
 

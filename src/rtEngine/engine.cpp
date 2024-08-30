@@ -57,3 +57,8 @@ void Engine::setCurrentScene(std::string scene_name)
     }
     throw std::runtime_error("Could not find scene with name " + scene_name);
 }
+
+Scene *Engine::getCurrentScene()
+{
+    return m_current_scene;
+}

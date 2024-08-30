@@ -21,7 +21,7 @@ class Mesh
 private:
     uint m_vao,m_vbo,m_ebo;
 public:
-    Shader raster_shader = Shader("amongus");
+    // Shader raster_shader = Shader("amongus");
     std::vector<Vertex> vertices;
     std::vector<uint> indices;
     std::vector<Texture*> diffuse_maps;

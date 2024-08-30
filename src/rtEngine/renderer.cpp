@@ -87,14 +87,18 @@ void Renderer::renderFrame(Scene* render_scene)
             RTMeshInfo mesh_info;
             mesh_info.indices_start = indices_mesh_start;
             mesh_info.indices_num = mesh.indices.size();
-            mesh_info.material.albedo = glm::vec3(0.5f);
+            mesh_info.material.albedo = glm::vec3(0.1f);
             mesh_info.material.emmision_color = glm::vec3(0.0f);
             mesh_info.material.emmision_strength = 0.0f;
             mesh_info.material.smoothness = 0.0f;
             all_meshes.push_back(mesh_info);
             for(auto vertex : mesh.vertices)
             {
-                all_vertices.push_back(vertex);
+                Vertex vert;
+                vert.position = gameobj->getGlobalModelMatrix() * glm::vec4(vertex.position, 1.0f);
+                vert.normal = glm::transpose(glm::inverse(gameobj->getGlobalModelMatrix())) * glm::vec4(vertex.normal, 1.0f);
+                vert.tex_coords = vertex.tex_coords;
+                all_vertices.push_back(vert);
             }
             for(auto index : mesh.indices)
             {
@@ -106,7 +110,6 @@ void Renderer::renderFrame(Scene* render_scene)
     }
 
     renderShader->use();
-
     renderShader->setInt("mesh_count", all_meshes.size());
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_mesh_ssbo);

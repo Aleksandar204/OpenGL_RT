@@ -103,11 +103,11 @@ Model::Model(std::string model_path)
     loadModel(model_path);
 }
 
-Model::Model(std::string model_path, Shader sh)
-{
-    loadModel(model_path);
-    for (unsigned int i = 0; i < meshes.size(); i++)
-    {
-        meshes[i].raster_shader = sh;
-    }
-}
+// Model::Model(std::string model_path, Shader sh)
+// {
+//     loadModel(model_path);
+//     for (unsigned int i = 0; i < meshes.size(); i++)
+//     {
+//         meshes[i].raster_shader = sh;
+//     }
+// }

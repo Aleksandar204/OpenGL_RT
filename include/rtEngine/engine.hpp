@@ -10,6 +10,7 @@ public:
     void addScene(std::string scene_name);
     void removeScene(std::string scene_name);
     void setCurrentScene(std::string scene_name);
+    Scene* getCurrentScene();
 
 private:
     Renderer m_renderer;
