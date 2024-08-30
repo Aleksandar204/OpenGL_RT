@@ -47,8 +47,8 @@ Renderer::Renderer()
     glBindTexture(GL_TEXTURE_2D, quad_texture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGBA, GL_FLOAT, nullptr);
     glBindImageTexture(0, quad_texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
@@ -98,18 +98,22 @@ void Renderer::renderFrame(Scene* render_scene)
             all_meshes.push_back(mesh_info);
             for(auto vertex : mesh.vertices)
             {
+                Vertex tmp;
+                tmp.position = gameobj->getGlobalModelMatrix() * glm::vec4(vertex.position,1.0f);
+                tmp.normal = glm::mat3(glm::transpose(glm::inverse(gameobj->getGlobalModelMatrix()))) * vertex.normal;
+                tmp.tex_coords = vertex.tex_coords;
                 RTVertexInfo v;
 
-                v.position[0] = vertex.position.x;
-                v.position[1] = vertex.position.y;
-                v.position[2] = vertex.position.z;
+                v.position[0] = tmp.position.x;
+                v.position[1] = tmp.position.y;
+                v.position[2] = tmp.position.z;
 
-                v.normal[0] = vertex.normal.x;
-                v.normal[1] = vertex.normal.y;
-                v.normal[2] = vertex.normal.z;
+                v.normal[0] = tmp.normal.x;
+                v.normal[1] = tmp.normal.y;
+                v.normal[2] = tmp.normal.z;
 
-                v.tex_coords[0] = vertex.tex_coords.x;
-                v.tex_coords[1] = vertex.tex_coords.y;
+                v.tex_coords[0] = tmp.tex_coords.x;
+                v.tex_coords[1] = tmp.tex_coords.y;
 
                 all_vertices.push_back(v);
             }

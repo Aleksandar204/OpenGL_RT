@@ -61,8 +61,8 @@ const float INFINITY = 1.0f / 0.0f;
 const float PI = 3.1415926535f;
 
 
-#define MAX_BOUNCE 8
-#define SAMPLES_PER_PIXEL 4
+#define MAX_BOUNCE 4
+#define SAMPLES_PER_PIXEL 1
 #define GLOBAL_LIGHT vec3(0.53, 0.81, 0.92);
 
 uint state;
@@ -188,8 +188,8 @@ void main() {
     state = gl_GlobalInvocationID.x + image_dimensions.x * gl_GlobalInvocationID.y;
 
     // Camera parameters
-    vec3 camera_center = vec3(0.0f,2.0f,5.0f);
-    vec3 look_at = vec3(1,0,0);
+    vec3 camera_center = vec3(0.0f,3.0f,0.0f);
+    vec3 look_at = vec3(0,3,-1);
     float focal_length = 1.0f;
     float fov = 90.0f;
 
