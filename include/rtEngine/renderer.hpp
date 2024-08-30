@@ -8,10 +8,18 @@
 
 struct RTMaterialInfo
 {
-    glm::vec3 albedo;
-    glm::vec3 emmision_color;
+    float albedo[4];
+    float emmision_color[4];
     float emmision_strength;
     float smoothness;
+};
+
+struct RTVertexInfo
+{
+    float position[4];
+    float normal[4];
+    float tex_coords[2];
+    float padding[2];
 };
 
 struct RTMeshInfo

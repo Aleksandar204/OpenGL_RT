@@ -74,7 +74,7 @@ void Renderer::renderFrame(Scene* render_scene)
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    std::vector<Vertex> all_vertices;
+    std::vector<RTVertexInfo> all_vertices;
     std::vector<int> all_indices;
     std::vector<RTMeshInfo> all_meshes;
 
@@ -87,18 +87,31 @@ void Renderer::renderFrame(Scene* render_scene)
             RTMeshInfo mesh_info;
             mesh_info.indices_start = indices_mesh_start;
             mesh_info.indices_num = mesh.indices.size();
-            mesh_info.material.albedo = glm::vec3(0.1f);
-            mesh_info.material.emmision_color = glm::vec3(0.0f);
+            mesh_info.material.albedo[0] = 0.5f;
+            mesh_info.material.albedo[1] = 0.5f;
+            mesh_info.material.albedo[2] = 0.5f;
+            mesh_info.material.emmision_color[0] = 0.0f;
+            mesh_info.material.emmision_color[1] = 0.0f;
+            mesh_info.material.emmision_color[2] = 0.0f;
             mesh_info.material.emmision_strength = 0.0f;
             mesh_info.material.smoothness = 0.0f;
             all_meshes.push_back(mesh_info);
             for(auto vertex : mesh.vertices)
             {
-                Vertex vert;
-                vert.position = gameobj->getGlobalModelMatrix() * glm::vec4(vertex.position, 1.0f);
-                vert.normal = glm::transpose(glm::inverse(gameobj->getGlobalModelMatrix())) * glm::vec4(vertex.normal, 1.0f);
-                vert.tex_coords = vertex.tex_coords;
-                all_vertices.push_back(vert);
+                RTVertexInfo v;
+
+                v.position[0] = vertex.position.x;
+                v.position[1] = vertex.position.y;
+                v.position[2] = vertex.position.z;
+
+                v.normal[0] = vertex.normal.x;
+                v.normal[1] = vertex.normal.y;
+                v.normal[2] = vertex.normal.z;
+
+                v.tex_coords[0] = vertex.tex_coords.x;
+                v.tex_coords[1] = vertex.tex_coords.y;
+
+                all_vertices.push_back(v);
             }
             for(auto index : mesh.indices)
             {
@@ -120,9 +133,8 @@ void Renderer::renderFrame(Scene* render_scene)
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(int) * all_indices.size(), all_indices.data(), GL_STATIC_DRAW);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_indices_ssbo);
 
-
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_vertex_ssbo);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Vertex) * all_vertices.size(), all_vertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(RTVertexInfo) * all_vertices.size(), all_vertices.data(), GL_STATIC_DRAW);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_vertex_ssbo);
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
