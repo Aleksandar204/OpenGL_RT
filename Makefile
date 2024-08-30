@@ -1,5 +1,5 @@
-CFLAGS = -std=c++17 -O2 -g
-LDFLAGS = -lglfw -lGL -lpthread -ldl
+CFLAGS = -std=c++20 -O0 -g
+LDFLAGS = -lglfw -lGL -lpthread -ldl -lassimp
 
 build/engineRT: src/* src/rtEngine/* include/rtEngine/*
 	g++ $(CFLAGS) -Iinclude -o build/engineRT src/*.cpp src/*.c src/rtEngine/* $(LDFLAGS)

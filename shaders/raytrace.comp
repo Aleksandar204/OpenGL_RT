@@ -1,9 +1,4 @@
 #version 460 core
-layout (local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
-layout(rgba32f, location = 0, binding = 0) writeonly uniform image2D img_output;
-
-const float INFINITY = 1.0f / 0.0f;
-const float PI = 3.1415926535f;
 
 struct Material
 {
@@ -35,6 +30,43 @@ struct Sphere
     float radius;
     Material material;
 };
+
+struct Vertex
+{
+    vec3 position;
+    vec3 normal;
+    vec2 tex_coords;
+};
+
+struct Mesh
+{
+    int indices_start;
+    int indices_num;
+    Material material;
+};
+
+layout (local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+layout(rgba32f, location = 0, binding = 0) writeonly uniform image2D img_output;
+
+layout(std430, binding = 1) buffer vertices
+{
+    Vertex data_vertices[];
+};
+layout(std430, binding = 2) buffer indices
+{
+    int data_indices[];
+};
+layout(std430, binding = 3) buffer meshes
+{
+    Mesh data_meshes[];
+};
+
+uniform uint mesh_count;
+
+const float INFINITY = 1.0f / 0.0f;
+const float PI = 3.1415926535f;
+
+
 #define MAX_BOUNCE 8
 #define SAMPLES_PER_PIXEL 32
 #define WRLD_LEN 4
@@ -219,7 +251,7 @@ void main() {
 
     // Camera parameters
     vec3 camera_center = vec3(0.0f,0.0f,0.0f);
-    vec3 look_at = vec3(0,0,0);
+    vec3 look_at = vec3(0,0,-1);
     float focal_length = 1.0f;
     float fov = 90.0f;
 
