@@ -17,9 +17,9 @@ struct Vertex
 
 struct Mesh
 {
+    Material material;
     int indices_start;
     int indices_num;
-    Material material;
 };
 
 struct Ray

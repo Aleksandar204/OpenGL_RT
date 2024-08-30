@@ -12,6 +12,7 @@ struct RTMaterialInfo
     float emmision_color[4];
     float emmision_strength;
     float smoothness;
+    float padding[2];
 };
 
 struct RTVertexInfo
@@ -24,9 +25,10 @@ struct RTVertexInfo
 
 struct RTMeshInfo
 {
+    RTMaterialInfo material;
     int indices_start;
     int indices_num;
-    RTMaterialInfo material;
+    float padding[2];
 };
 
 class Renderer

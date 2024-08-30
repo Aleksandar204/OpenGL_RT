@@ -87,9 +87,9 @@ void Renderer::renderFrame(Scene* render_scene)
             RTMeshInfo mesh_info;
             mesh_info.indices_start = indices_mesh_start;
             mesh_info.indices_num = mesh.indices.size();
-            mesh_info.material.albedo[0] = 0.5f;
-            mesh_info.material.albedo[1] = 0.5f;
-            mesh_info.material.albedo[2] = 0.5f;
+            mesh_info.material.albedo[0] = 0.2f;
+            mesh_info.material.albedo[1] = 0.75f;
+            mesh_info.material.albedo[2] = 0.2f;
             mesh_info.material.emmision_color[0] = 0.0f;
             mesh_info.material.emmision_color[1] = 0.0f;
             mesh_info.material.emmision_color[2] = 0.0f;
