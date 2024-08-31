@@ -33,6 +33,15 @@ struct RTMeshInfo
     GLuint64 normal_texture_handle;
 };
 
+struct RTCameraInfo
+{
+    alignas(16) float camera_center[3];
+    alignas(16) float look_at[3];
+    alignas(4)  float fov;
+    alignas(4)  float focal_length;
+    alignas(8)  float padding[2];
+};
+
 class Renderer
 {
 public:
@@ -56,5 +65,6 @@ private:
     unsigned int quad_vao, quad_vbo, quad_texture;
     Shader *quadShader, *renderShader;
 
-    uint m_vertex_ssbo, m_indices_ssbo, m_mesh_ssbo;
+    RTCameraInfo caminfo;
+    uint m_vertex_ssbo, m_indices_ssbo, m_mesh_ssbo, m_camera_ubo;
 };

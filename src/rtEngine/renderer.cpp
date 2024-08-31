@@ -59,6 +59,24 @@ Renderer::Renderer()
     glGenBuffers(1,&m_vertex_ssbo);
     glGenBuffers(1,&m_indices_ssbo);
     glGenBuffers(1,&m_mesh_ssbo);
+
+    glGenBuffers(1,&m_camera_ubo);
+
+    glBindBufferBase(GL_UNIFORM_BUFFER, 4, m_camera_ubo);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, m_mesh_ssbo);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_indices_ssbo);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_vertex_ssbo);
+
+    caminfo.camera_center[0] = 0.0f;
+    caminfo.camera_center[1] = 3.0f;
+    caminfo.camera_center[2] = 0.0f;
+
+    caminfo.look_at[0] = 0.0f;
+    caminfo.look_at[1] = 3.0f;
+    caminfo.look_at[2] = -1.0f;
+
+    caminfo.focal_length = 1.0f;
+    caminfo.fov = 70.0f;
 }
 
 Renderer::~Renderer()
@@ -141,19 +159,22 @@ void Renderer::renderFrame(Scene* render_scene)
     renderShader->use();
     renderShader->setInt("mesh_count", all_meshes.size());
 
+    caminfo.fov += 0.1f;
+
+    glBindBuffer(GL_UNIFORM_BUFFER, m_camera_ubo);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(RTCameraInfo), &caminfo ,GL_STREAM_DRAW);
+
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_mesh_ssbo);
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(RTMeshInfo) * all_meshes.size(), all_meshes.data(), GL_STATIC_DRAW);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, m_mesh_ssbo);
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_indices_ssbo);
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(int) * all_indices.size(), all_indices.data(), GL_STATIC_DRAW);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_indices_ssbo);
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_vertex_ssbo);
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(RTVertexInfo) * all_vertices.size(), all_vertices.data(), GL_STATIC_DRAW);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_vertex_ssbo);
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     glDispatchCompute((unsigned int)WINDOW_WIDTH / 8, (unsigned int)WINDOW_HEIGHT / 8, 1);
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
