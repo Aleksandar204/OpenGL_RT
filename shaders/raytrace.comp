@@ -157,15 +157,11 @@ HitRecord calculate_collision(Ray r)
             {
                 closestHit = temp;
                 closestHit.hit_material = temp.hit_material;
-                closestHit.hit_material.albedo = texture(data_meshes[i].albedo_texture_handle, closestHit.hit_material.albedo.xy).rgb;
-                closestHit.hit_material.smoothness = texture(data_meshes[i].specular_texture_handle, closestHit.hit_material.albedo.xy).r;
+                vec2 temp = closestHit.hit_material.albedo.xy;
+                closestHit.hit_material.albedo = texture(data_meshes[i].albedo_texture_handle, temp).rgb;
+                closestHit.hit_material.smoothness = texture(data_meshes[i].specular_texture_handle, temp).r;
                 closest = temp.t;
             }
-            if(i == 0)
-                {
-                    closestHit.hit_material.emmision_color = vec3(0.1);
-                    closestHit.hit_material.emmision_strength = 10.0f;
-                }
         }
     }
     return closestHit;
