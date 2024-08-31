@@ -95,7 +95,18 @@ void Renderer::renderFrame(Scene* render_scene)
             mesh_info.material.emmision_color[2] = 0.0f;
             mesh_info.material.emmision_strength = 0.0f;
             mesh_info.material.smoothness = 0.0f;
-            mesh_info.albedo_texture_handle = mesh.diffuse_maps[0]->getTextureHandle();
+            if(mesh.diffuse_maps.size() > 0)
+                mesh_info.diffuse_texture_handle = mesh.diffuse_maps[0]->getTextureHandle();
+            else
+                mesh_info.diffuse_texture_handle = 0;
+            if(mesh.specular_maps.size() > 0)
+                mesh_info.specular_texture_handle = mesh.specular_maps[0]->getTextureHandle();
+            else
+                mesh_info.specular_texture_handle = 0;
+            if(mesh.normal_maps.size() > 0)
+                mesh_info.normal_texture_handle = mesh.normal_maps[0]->getTextureHandle();
+            else
+                mesh_info.normal_texture_handle = 0;
             all_meshes.push_back(mesh_info);
             for(auto vertex : mesh.vertices)
             {

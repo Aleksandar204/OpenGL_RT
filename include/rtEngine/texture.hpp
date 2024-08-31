@@ -26,7 +26,7 @@ public:
     {
         glBindTexture(GL_TEXTURE_2D, texture_id);
     }
-    unsigned int get_id()
+    unsigned int getID()
     {
         return texture_id;
     }

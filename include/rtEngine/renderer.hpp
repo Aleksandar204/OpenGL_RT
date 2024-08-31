@@ -28,7 +28,9 @@ struct RTMeshInfo
     RTMaterialInfo material;
     int indices_start;
     int indices_num;
-    GLuint64 albedo_texture_handle;
+    GLuint64 diffuse_texture_handle;
+    GLuint64 specular_texture_handle;
+    GLuint64 normal_texture_handle;
 };
 
 class Renderer
