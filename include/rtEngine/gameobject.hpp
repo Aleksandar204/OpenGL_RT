@@ -34,6 +34,12 @@ public:
     {
     }
 
+    void addComponent(Component* component)
+    {
+        component->game_object = this;
+        components.push_back(component);
+    }
+
     glm::mat4 getGlobalModelMatrix()
     {
         glm::mat4 globalMat = modelMatrix;

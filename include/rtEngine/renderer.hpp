@@ -8,19 +8,19 @@
 
 struct RTMaterialInfo
 {
-    float albedo[4];
-    float emmision_color[4];
-    float emmision_strength;
-    float smoothness;
-    float padding[2];
+    alignas(16) glm::vec3 albedo;
+    alignas(16) glm::vec3 emmision_color;
+    alignas(4)  float emmision_strength;
+    alignas(4)  float smoothness;
+    alignas(8)  float padding[2];
 };
 
 struct RTVertexInfo
 {
-    float position[4];
-    float normal[4];
-    float tex_coords[2];
-    float padding[2];
+    alignas(16) glm::vec3 position;
+    alignas(16) glm::vec3 normal;
+    alignas(8) glm::vec2 tex_coords;
+    alignas(8) float padding[2];
 };
 
 struct RTMeshInfo
@@ -31,12 +31,13 @@ struct RTMeshInfo
     GLuint64 diffuse_texture_handle;
     GLuint64 specular_texture_handle;
     GLuint64 normal_texture_handle;
+    glm::mat4 mesh_matrix;
 };
 
 struct RTCameraInfo
 {
-    alignas(16) float camera_center[3];
-    alignas(16) float look_at[3];
+    alignas(16) glm::vec3 camera_center;
+    alignas(16) glm::vec3 look_at;
     alignas(4)  float fov;
     alignas(4)  float focal_length;
     alignas(8)  float padding[2];

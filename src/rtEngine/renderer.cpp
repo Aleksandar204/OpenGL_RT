@@ -1,4 +1,5 @@
 #include <rtEngine/renderer.hpp>
+#include <rtEngine/camera.hpp>
 
 Renderer::Renderer()
 {
@@ -56,27 +57,16 @@ Renderer::Renderer()
 
     glEnable(GL_FRAMEBUFFER_SRGB);
 
-    glGenBuffers(1,&m_vertex_ssbo);
-    glGenBuffers(1,&m_indices_ssbo);
-    glGenBuffers(1,&m_mesh_ssbo);
+    glGenBuffers(1, &m_vertex_ssbo);
+    glGenBuffers(1, &m_indices_ssbo);
+    glGenBuffers(1, &m_mesh_ssbo);
 
-    glGenBuffers(1,&m_camera_ubo);
+    glGenBuffers(1, &m_camera_ubo);
 
     glBindBufferBase(GL_UNIFORM_BUFFER, 4, m_camera_ubo);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, m_mesh_ssbo);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_indices_ssbo);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_vertex_ssbo);
-
-    caminfo.camera_center[0] = 0.0f;
-    caminfo.camera_center[1] = 3.0f;
-    caminfo.camera_center[2] = 0.0f;
-
-    caminfo.look_at[0] = 0.0f;
-    caminfo.look_at[1] = 3.0f;
-    caminfo.look_at[2] = -1.0f;
-
-    caminfo.focal_length = 1.0f;
-    caminfo.fov = 70.0f;
 }
 
 Renderer::~Renderer()
@@ -88,7 +78,7 @@ Renderer::~Renderer()
     glfwTerminate();
 }
 
-void Renderer::renderFrame(Scene* render_scene)
+void Renderer::renderFrame(Scene *render_scene)
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -98,71 +88,78 @@ void Renderer::renderFrame(Scene* render_scene)
 
     uint indices_mesh_start = 0;
     uint vertex_offset = 0;
-    for(auto gameobj : render_scene->game_objects)
+    bool found_cam = false;
+    for (auto gameobj : render_scene->game_objects)
     {
-        for(auto mesh : gameobj->model->meshes)
+        if (!found_cam)
         {
-            RTMeshInfo mesh_info;
-            mesh_info.indices_start = indices_mesh_start;
-            mesh_info.indices_num = mesh.indices.size();
-            mesh_info.material.albedo[0] = 0.2f;
-            mesh_info.material.albedo[1] = 0.75f;
-            mesh_info.material.albedo[2] = 0.2f;
-            mesh_info.material.emmision_color[0] = 0.0f;
-            mesh_info.material.emmision_color[1] = 0.0f;
-            mesh_info.material.emmision_color[2] = 0.0f;
-            mesh_info.material.emmision_strength = 0.0f;
-            mesh_info.material.smoothness = 0.0f;
-            if(mesh.diffuse_maps.size() > 0)
-                mesh_info.diffuse_texture_handle = mesh.diffuse_maps[0]->getTextureHandle();
-            else
-                mesh_info.diffuse_texture_handle = 0;
-            if(mesh.specular_maps.size() > 0)
-                mesh_info.specular_texture_handle = mesh.specular_maps[0]->getTextureHandle();
-            else
-                mesh_info.specular_texture_handle = 0;
-            if(mesh.normal_maps.size() > 0)
-                mesh_info.normal_texture_handle = mesh.normal_maps[0]->getTextureHandle();
-            else
-                mesh_info.normal_texture_handle = 0;
-            all_meshes.push_back(mesh_info);
-            for(auto vertex : mesh.vertices)
+            for (auto comp : gameobj->components)
             {
-                Vertex tmp;
-                tmp.position = gameobj->getGlobalModelMatrix() * glm::vec4(vertex.position,1.0f);
-                tmp.normal = glm::mat3(glm::transpose(glm::inverse(gameobj->getGlobalModelMatrix()))) * vertex.normal;
-                tmp.tex_coords = vertex.tex_coords;
-                RTVertexInfo v;
-
-                v.position[0] = tmp.position.x;
-                v.position[1] = tmp.position.y;
-                v.position[2] = tmp.position.z;
-
-                v.normal[0] = tmp.normal.x;
-                v.normal[1] = tmp.normal.y;
-                v.normal[2] = tmp.normal.z;
-
-                v.tex_coords[0] = tmp.tex_coords.x;
-                v.tex_coords[1] = tmp.tex_coords.y;
-
-                all_vertices.push_back(v);
+                if (Camera *c = dynamic_cast<Camera *>(comp))
+                {
+                    caminfo.camera_center = gameobj->getGlobalPosition();
+                    caminfo.look_at = gameobj->getGlobalForward() + gameobj->getGlobalPosition();
+                    caminfo.focal_length = c->focal_length;
+                    caminfo.fov = c->fov;
+                    found_cam = true;
+                    break;
+                }
             }
-            for(auto index : mesh.indices)
+        }
+        if (gameobj->model != nullptr)
+        {
+            for (auto mesh : gameobj->model->meshes)
             {
-                all_indices.push_back(index+vertex_offset);
+                RTMeshInfo mesh_info;
+                mesh_info.mesh_matrix = gameobj->getGlobalModelMatrix();
+                mesh_info.indices_start = indices_mesh_start;
+                mesh_info.indices_num = mesh.indices.size();
+                mesh_info.material.albedo[0] = 0.5f;
+                mesh_info.material.albedo[1] = 0.5f;
+                mesh_info.material.albedo[2] = 0.5f;
+                mesh_info.material.emmision_color[0] = 0.0f;
+                mesh_info.material.emmision_color[1] = 0.0f;
+                mesh_info.material.emmision_color[2] = 0.0f;
+                mesh_info.material.emmision_strength = 0.0f;
+                mesh_info.material.smoothness = 0.0f;
+                if (mesh.diffuse_maps.size() > 0)
+                    mesh_info.diffuse_texture_handle = mesh.diffuse_maps[0]->getTextureHandle();
+                else
+                    mesh_info.diffuse_texture_handle = 0;
+                if (mesh.specular_maps.size() > 0)
+                    mesh_info.specular_texture_handle = mesh.specular_maps[0]->getTextureHandle();
+                else
+                    mesh_info.specular_texture_handle = 0;
+                if (mesh.normal_maps.size() > 0)
+                    mesh_info.normal_texture_handle = mesh.normal_maps[0]->getTextureHandle();
+                else
+                    mesh_info.normal_texture_handle = 0;
+                all_meshes.push_back(mesh_info);
+                for (auto vertex : mesh.vertices)
+                {
+                    RTVertexInfo v;
+
+                    v.position = vertex.position;
+                    v.normal = vertex.normal;
+                    v.tex_coords = vertex.tex_coords;
+
+                    all_vertices.push_back(v);
+                }
+                for (auto index : mesh.indices)
+                {
+                    all_indices.push_back(index + vertex_offset);
+                }
+                indices_mesh_start += mesh.indices.size();
+                vertex_offset += mesh.vertices.size();
             }
-            indices_mesh_start += mesh.indices.size();
-            vertex_offset += mesh.vertices.size();
         }
     }
 
     renderShader->use();
     renderShader->setInt("mesh_count", all_meshes.size());
 
-    caminfo.fov += 0.1f;
-
     glBindBuffer(GL_UNIFORM_BUFFER, m_camera_ubo);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(RTCameraInfo), &caminfo ,GL_STREAM_DRAW);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(RTCameraInfo), &caminfo, GL_STREAM_DRAW);
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_mesh_ssbo);
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(RTMeshInfo) * all_meshes.size(), all_meshes.data(), GL_STATIC_DRAW);

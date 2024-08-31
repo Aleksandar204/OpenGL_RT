@@ -4,6 +4,9 @@ void Engine::run()
 {
     while (!glfwWindowShouldClose(m_renderer.window))
     {
+        double current_frametime = glfwGetTime();
+        m_delta_time = current_frametime - m_last_frametime;
+        m_last_frametime = current_frametime;
         startUpdateCurrentScene();
 
         m_renderer.renderFrame(m_current_scene);
@@ -32,6 +35,7 @@ void Engine::updateAndStart(GameObject *obj)
         if(!component->started)
         {
             component->Start();
+            component->started = true;
         }
         else
         {

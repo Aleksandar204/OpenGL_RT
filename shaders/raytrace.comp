@@ -25,6 +25,7 @@ struct Mesh
     sampler2D albedo_texture_handle;
     sampler2D specular_texture_handle;
     sampler2D normal_texture_handle;
+    mat4 model_matrix;
 };
 
 struct Ray
@@ -113,11 +114,21 @@ vec3 at(Ray r, float dist)
     return r.origin + dist*r.direction;
 }
 
-HitRecord hit_triangle(int ind1, int ind2, int ind3, Ray r)
+HitRecord hit_triangle(int ind1, int ind2, int ind3, mat4 matrix, Ray r)
 {
     Vertex vertA = data_vertices[ind1];
     Vertex vertB = data_vertices[ind2];
     Vertex vertC = data_vertices[ind3];
+
+    vertA.position = (matrix * vec4(vertA.position, 1)).xyz;
+    vertA.normal = mat3(transpose(inverse(matrix))) * vertA.normal;
+
+
+    vertB.position = (matrix * vec4(vertB.position, 1)).xyz;
+    vertB.normal = mat3(transpose(inverse(matrix))) * vertB.normal;
+
+    vertC.position = (matrix * vec4(vertC.position, 1)).xyz;
+    vertC.normal = mat3(transpose(inverse(matrix))) * vertC.normal;
 
     vec3 edgeAB = vertB.position - vertA.position;
     vec3 edgeAC = vertC.position - vertA.position;
@@ -160,7 +171,7 @@ HitRecord calculate_collision(Ray r)
     {
         for(int j = 0; j < data_meshes[i].indices_num; j += 3)
         {
-            HitRecord temp = hit_triangle(data_indices[data_meshes[i].indices_start + j], data_indices[data_meshes[i].indices_start + j +1], data_indices[data_meshes[i].indices_start + j +2], r);
+            HitRecord temp = hit_triangle(data_indices[data_meshes[i].indices_start + j], data_indices[data_meshes[i].indices_start + j +1], data_indices[data_meshes[i].indices_start + j +2],data_meshes[i].model_matrix ,r);
 
             if(temp.hit && temp.t < closest)
             {
