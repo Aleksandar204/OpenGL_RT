@@ -12,7 +12,7 @@ class Texture
 {
 private:
     unsigned int texture_id;
-
+    GLuint64 m_gpu_texture_handle;
 public:
     std::string type;
     Texture(const char *texturePath);
@@ -29,5 +29,10 @@ public:
     unsigned int get_id()
     {
         return texture_id;
+    }
+
+    GLuint64 getTextureHandle()
+    {
+        return m_gpu_texture_handle;
     }
 };

@@ -95,6 +95,7 @@ void Renderer::renderFrame(Scene* render_scene)
             mesh_info.material.emmision_color[2] = 0.0f;
             mesh_info.material.emmision_strength = 0.0f;
             mesh_info.material.smoothness = 0.0f;
+            mesh_info.albedo_texture_handle = mesh.diffuse_maps[0]->getTextureHandle();
             all_meshes.push_back(mesh_info);
             for(auto vertex : mesh.vertices)
             {

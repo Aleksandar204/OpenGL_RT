@@ -1,5 +1,7 @@
 #version 460 core
 
+#extension GL_ARB_bindless_texture : require
+
 struct Material
 {
     vec3 albedo;
@@ -20,6 +22,7 @@ struct Mesh
     Material material;
     int indices_start;
     int indices_num;
+    sampler2D albedo_texture_handle;
 };
 
 struct Ray
@@ -124,6 +127,14 @@ HitRecord hit_triangle(int ind1, int ind2, int ind3, Ray r)
     result.t = dist;
     result.point = at(r, dist);
     result.norm = normalize(vertA.normal * w + vertB.normal * u + vertC.normal * v);
+    
+    vec2 uv = vertA.tex_coords * w + vertB.tex_coords * u + vertC.tex_coords * v;
+    result.hit_material.albedo = vec3(uv,0.0);
+    result.hit_material.emmision_color = vec3(0.0);
+    
+    result.hit_material.emmision_strength = 0.0;
+    result.hit_material.smoothness = 0.0;
+
     return result;
 }
 
@@ -142,7 +153,9 @@ HitRecord calculate_collision(Ray r)
             if(temp.hit && temp.t < closest)
             {
                 closestHit = temp;
-                closestHit.hit_material = data_meshes[i].material;
+                closestHit.hit_material = temp.hit_material;
+                closestHit.hit_material.albedo = texture(data_meshes[i].albedo_texture_handle, closestHit.hit_material.albedo.xy).rgb;
+                //closestHit.hit_material = data_meshes[i].material;
                 closest = temp.t;
             }
         }

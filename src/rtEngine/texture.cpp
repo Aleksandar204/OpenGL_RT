@@ -44,6 +44,9 @@ Texture::Texture(const char *texturePath)
         glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
         glGenerateMipmap(GL_TEXTURE_2D);
+
+        m_gpu_texture_handle = glGetTextureHandleARB(texture_id);
+        glMakeTextureHandleResidentARB(m_gpu_texture_handle);
     }
     else
     {
