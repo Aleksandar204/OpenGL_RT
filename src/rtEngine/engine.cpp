@@ -1,5 +1,7 @@
 #include <rtEngine/engine.hpp>
 
+int cnt_tmp = 0;
+
 void Engine::run()
 {
     while (!glfwWindowShouldClose(m_renderer.window))
@@ -7,6 +9,12 @@ void Engine::run()
         double current_frametime = glfwGetTime();
         m_delta_time = current_frametime - m_last_frametime;
         m_last_frametime = current_frametime;
+        if(cnt_tmp == 10)
+        {
+            std::cout << 1/m_delta_time << std::endl;
+            cnt_tmp = 0;
+        }
+        cnt_tmp++;
         startUpdateCurrentScene();
 
         m_renderer.renderFrame(m_current_scene);
