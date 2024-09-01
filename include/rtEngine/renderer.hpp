@@ -63,9 +63,9 @@ private:
         1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
         1.0f, 1.0f, 0.0f, 1.0f, 1.0f};
 
-    unsigned int quad_vao, quad_vbo, quad_texture;
+    GLuint quad_vao, quad_vbo, quad_texture;
     Shader *quadShader, *renderShader;
 
     RTCameraInfo caminfo;
-    uint m_vertex_ssbo, m_indices_ssbo, m_mesh_ssbo, m_camera_ubo;
+    GLuint m_vertex_ssbo, m_indices_ssbo, m_mesh_ssbo, m_camera_ubo;
 };

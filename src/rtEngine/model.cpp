@@ -17,12 +17,12 @@ void Model::loadModel(std::string model_path)
 
 void Model::processNode(aiNode *node, const aiScene *scene)
 {
-    for (unsigned int i = 0; i < node->mNumMeshes; i++)
+    for (GLuint i = 0; i < node->mNumMeshes; i++)
     {
         aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
         meshes.push_back(processMesh(mesh, scene));
     }
-    for (unsigned int i = 0; i < node->mNumChildren; i++)
+    for (GLuint i = 0; i < node->mNumChildren; i++)
     {
         processNode(node->mChildren[i], scene);
     }
@@ -31,13 +31,13 @@ void Model::processNode(aiNode *node, const aiScene *scene)
 Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
 {
     std::vector<Vertex> vertices;
-    std::vector<unsigned int> indices;
+    std::vector<GLuint> indices;
     std::vector<Texture *> diffuseMaps;
     std::vector<Texture *> specularMaps;
     std::vector<Texture *> normalMaps;
     std::vector<Texture *> heightMaps;
 
-    for (unsigned int i = 0; i < mesh->mNumVertices; i++)
+    for (GLuint i = 0; i < mesh->mNumVertices; i++)
     {
         Vertex vertex;
         glm::vec3 vec;
@@ -64,10 +64,10 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
 
         vertices.push_back(vertex);
     }
-    for (unsigned int i = 0; i < mesh->mNumFaces; i++)
+    for (GLuint i = 0; i < mesh->mNumFaces; i++)
     {
         aiFace face = mesh->mFaces[i];
-        for (unsigned int j = 0; j < face.mNumIndices; j++)
+        for (GLuint j = 0; j < face.mNumIndices; j++)
         {
             indices.push_back(face.mIndices[j]);
         }
@@ -85,7 +85,7 @@ std::vector<Texture *> Model::loadMaterialTextures(aiMaterial *mat, aiTextureTyp
 {
     std::vector<Texture *> textures;
     // std::cout << mat->GetTextureCount(type) << std::endl;
-    for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
+    for (GLuint i = 0; i < mat->GetTextureCount(type); i++)
     {
         aiString str;
         mat->GetTexture(type, i, &str);
@@ -106,7 +106,7 @@ Model::Model(std::string model_path)
 // Model::Model(std::string model_path, Shader sh)
 // {
 //     loadModel(model_path);
-//     for (unsigned int i = 0; i < meshes.size(); i++)
+//     for (GLuint i = 0; i < meshes.size(); i++)
 //     {
 //         meshes[i].raster_shader = sh;
 //     }

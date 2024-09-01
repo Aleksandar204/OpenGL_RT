@@ -86,8 +86,8 @@ void Renderer::renderFrame(Scene *render_scene)
     std::vector<int> all_indices;
     std::vector<RTMeshInfo> all_meshes;
 
-    uint indices_mesh_start = 0;
-    uint vertex_offset = 0;
+    GLuint indices_mesh_start = 0;
+    GLuint vertex_offset = 0;
     bool found_cam = false;
     for (auto gameobj : render_scene->game_objects)
     {
@@ -173,7 +173,7 @@ void Renderer::renderFrame(Scene *render_scene)
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-    glDispatchCompute((unsigned int)WINDOW_WIDTH / 8, (unsigned int)WINDOW_HEIGHT / 8, 1);
+    glDispatchCompute((GLuint)WINDOW_WIDTH / 8, (GLuint)WINDOW_HEIGHT / 8, 1);
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
     quadShader->use();

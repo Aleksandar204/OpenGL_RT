@@ -11,7 +11,7 @@
 class Texture
 {
 private:
-    unsigned int texture_id;
+    GLuint texture_id;
     GLuint64 m_gpu_texture_handle;
 public:
     std::string type;
@@ -26,7 +26,7 @@ public:
     {
         glBindTexture(GL_TEXTURE_2D, texture_id);
     }
-    unsigned int getID()
+    GLuint getID()
     {
         return texture_id;
     }

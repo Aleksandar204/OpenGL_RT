@@ -6,8 +6,8 @@
 class Shader
 {
 private:
-    unsigned int shader_id;
-    void checkCompileErrors(unsigned int shader, std::string type);
+    GLuint shader_id;
+    void checkCompileErrors(GLuint shader, std::string type);
 
 public:
     Shader(std::string vertexPath, std::string fragmentPath);
