@@ -8,4 +8,5 @@
 *.vsix
 
 cmake-build-*/
+build/
 .idea/

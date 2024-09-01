@@ -9,5 +9,5 @@ public:
     virtual void Update() {}
     bool started = false;
 
-    GameObject* game_object;
+    GameObject* game_object = nullptr;
 };

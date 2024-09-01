@@ -51,9 +51,9 @@ Shader::Shader(std::string vertexPath, std::string fragmentPath)
 Shader::Shader(std::string computePath)
 {
     std::string computeCode;
-    ;
+
     std::ifstream cShaderFile;
-    ;
+
     cShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
     cShaderFile.open(computePath);

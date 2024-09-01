@@ -34,6 +34,8 @@ Texture::Texture(const char *texturePath)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // Transparent texture edges have artifacts around the edges when repeating, this should be GL_CLAMP but it messes up other things TODO: find solution
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         break;
+    default:
+        throw std::runtime_error("Texture format not recognised");
     }
 
     if (data)
