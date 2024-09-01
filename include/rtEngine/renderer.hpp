@@ -46,7 +46,7 @@ struct RTCameraInfo
 class Renderer
 {
 public:
-    const int WINDOW_WIDTH = 1920, WINDOW_HEIGHT = 1080;
+    const int WINDOW_WIDTH = 1280, WINDOW_HEIGHT = 720;
 
     Renderer();
     ~Renderer();

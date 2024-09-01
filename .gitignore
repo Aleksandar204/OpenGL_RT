@@ -7,4 +7,5 @@
 .history/
 *.vsix
 
-build/
+cmake-build-*/
+.idea/

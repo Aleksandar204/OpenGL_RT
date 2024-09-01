@@ -40,8 +40,8 @@ Renderer::Renderer()
 
     glBindVertexArray(0);
 
-    quadShader = new Shader("shaders/quad.vert", "shaders/quad.frag");
-    renderShader = new Shader("shaders/raytrace.comp");
+    quadShader = new Shader("resources/shaders/quad.vert", "resources/shaders/quad.frag");
+    renderShader = new Shader("resources/shaders/raytrace.comp");
     glGenTextures(1, &quad_texture);
 
     glActiveTexture(GL_TEXTURE0);
