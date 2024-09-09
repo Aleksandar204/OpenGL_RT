@@ -57,4 +57,9 @@ public:
     {
         glUniformMatrix4fv(glGetUniformLocation(shader_id, name.c_str()), 1, GL_FALSE, &mat[0][0]);
     }
+
+    void setBindlessTexture(const std::string &name, GLuint64 value) const
+    {
+        glUniformHandleui64ARB(glGetUniformLocation(shader_id, name.c_str()), value);
+    }
 };
