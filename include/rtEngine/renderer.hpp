@@ -48,6 +48,8 @@ class Renderer
 public:
     const int WINDOW_WIDTH = 1280, WINDOW_HEIGHT = 720;
 
+    bool use_raytracing = false;
+
     Renderer();
     ~Renderer();
 
@@ -68,4 +70,7 @@ private:
 
     RTCameraInfo caminfo;
     GLuint m_vertex_ssbo, m_indices_ssbo, m_mesh_ssbo, m_camera_ubo;
+
+    void renderRaytrace(Scene *render_scene);
+    void renderRaster(Scene *render_scene);
 };

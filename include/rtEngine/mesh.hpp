@@ -21,7 +21,7 @@ class Mesh
 private:
     GLuint m_vao,m_vbo,m_ebo;
 public:
-    // Shader raster_shader = Shader("amongus");
+    Shader raster_shader = Shader("resources/shaders/basicUnlit.vert", "resources/shaders/basicUnlit.frag");
     std::vector<Vertex> vertices;
     std::vector<GLuint> indices;
     std::vector<Texture*> diffuse_maps;

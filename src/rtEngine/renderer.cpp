@@ -26,6 +26,8 @@ Renderer::Renderer()
 
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
+    glEnable(GL_DEPTH_TEST);
+
     glGenVertexArrays(1, &quad_vao);
     glGenBuffers(1, &quad_vbo);
 
@@ -76,17 +78,42 @@ Renderer::~Renderer()
     glDeleteVertexArrays(1, &quad_vao);
     glDeleteBuffers(1, &quad_vbo);
 
-    glDeleteBuffers(1,&m_camera_ubo);
-    glDeleteBuffers(1,&m_mesh_ssbo);
-    glDeleteBuffers(1,&m_indices_ssbo);
-    glDeleteBuffers(1,&m_vertex_ssbo);
+    glDeleteBuffers(1, &m_camera_ubo);
+    glDeleteBuffers(1, &m_mesh_ssbo);
+    glDeleteBuffers(1, &m_indices_ssbo);
+    glDeleteBuffers(1, &m_vertex_ssbo);
     glfwTerminate();
 }
 
 void Renderer::renderFrame(Scene *render_scene)
 {
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
+
+    if (use_raytracing)
+    {
+        renderRaytrace(render_scene);
+    }
+    else
+    {
+        renderRaster(render_scene);
+    }
+
+    glfwSwapBuffers(window);
+
+    quadShader->use();
+    glBindVertexArray(quad_vao);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, quad_texture);
+
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glBindVertexArray(0);
+}
+
+void Renderer::renderRaytrace(Scene *render_scene)
+{
     std::vector<RTVertexInfo> all_vertices;
     std::vector<int> all_indices;
     std::vector<RTMeshInfo> all_meshes;
@@ -94,7 +121,15 @@ void Renderer::renderFrame(Scene *render_scene)
     GLuint indices_mesh_start = 0;
     GLuint vertex_offset = 0;
     bool found_cam = false;
+
+    std::vector<GameObject *> current_scene_gameobjects;
     for (auto gameobj : render_scene->game_objects)
+    {
+        current_scene_gameobjects.push_back(gameobj);
+        gameobj->addChildrenRecursive(current_scene_gameobjects);
+    }
+
+    for (auto gameobj : current_scene_gameobjects)
     {
         if (!found_cam)
         {
@@ -182,15 +217,52 @@ void Renderer::renderFrame(Scene *render_scene)
 
     glDispatchCompute((GLuint)WINDOW_WIDTH / 8, (GLuint)WINDOW_HEIGHT / 8, 1);
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+}
 
-    quadShader->use();
-    glBindVertexArray(quad_vao);
+void Renderer::renderRaster(Scene *render_scene)
+{
+    std::vector<GameObject *> current_scene_gameobjects;
+    for (auto gameobj : render_scene->game_objects)
+    {
+        current_scene_gameobjects.push_back(gameobj);
+        gameobj->addChildrenRecursive(current_scene_gameobjects);
+    }
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, quad_texture);
+    bool found_cam = false;
 
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    glBindVertexArray(0);
+    for (auto gameobj : current_scene_gameobjects)
+    {
+        if (!found_cam)
+        {
+            for (auto comp : gameobj->components)
+            {
+                if (Camera *c = dynamic_cast<Camera *>(comp))
+                {
+                    caminfo.camera_center = gameobj->getGlobalPosition();
+                    caminfo.look_at = gameobj->getGlobalForward() + gameobj->getGlobalPosition();
+                    caminfo.focal_length = c->focal_length;
+                    caminfo.fov = c->fov;
+                    found_cam = true;
+                    break;
+                }
+            }
+        }
+    }
+    for (auto gameobj : current_scene_gameobjects)
+    {
+        if (gameobj->model != nullptr)
+        {
+            for (auto mesh : gameobj->model->meshes)
+            {
+                mesh.raster_shader.use();
+                mesh.raster_shader.setMat4("model", gameobj->getGlobalModelMatrix());
+                mesh.raster_shader.setMat4("view", glm::lookAt(caminfo.camera_center, caminfo.look_at, glm::vec3(0,0,1)));
+                mesh.raster_shader.setMat4("projection", glm::perspective(glm::radians(caminfo.fov), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f));
 
-    glfwSwapBuffers(window);
+                glBindVertexArray(mesh.getVAO());
+                glDrawElements(GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, 0);
+                glBindVertexArray(0);
+            }
+        }
+    }
 }
