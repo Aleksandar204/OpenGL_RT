@@ -2,6 +2,9 @@
 
 #extension GL_ARB_bindless_texture : require
 
+#define MAX_BOUNCE 4
+#define SAMPLES_PER_PIXEL 32
+
 struct Material
 {
     vec3 albedo;
@@ -74,9 +77,6 @@ uniform int mesh_count;
 const float INFINITY = 1.0f / 0.0f;
 const float PI = 3.1415926535f;
 
-
-#define MAX_BOUNCE 8
-#define SAMPLES_PER_PIXEL 128
 // #define GLOBAL_LIGHT vec3(0.53, 0.81, 0.92);
 #define GLOBAL_LIGHT vec3(0.005, 0.01, 0.02);
 // #define GLOBAL_LIGHT vec3(0.005);
@@ -185,8 +185,14 @@ HitRecord calculate_collision(Ray r)
                 closestHit = temp;
                 closestHit.hit_material = temp.hit_material;
                 vec2 temp = closestHit.hit_material.albedo.xy;
-                closestHit.hit_material.albedo = texture(data_meshes[i].albedo_texture_handle, temp).rgb;
-                closestHit.hit_material.smoothness = texture(data_meshes[i].specular_texture_handle, temp).r;
+                if(data_meshes[i].material.albedo.r == -1.0f)
+                    closestHit.hit_material.albedo = texture(data_meshes[i].albedo_texture_handle, temp).rgb;
+                else
+                    closestHit.hit_material.albedo = data_meshes[i].material.albedo;
+                if(data_meshes[i].material.smoothness == -1.0f)
+                    closestHit.hit_material.smoothness = texture(data_meshes[i].specular_texture_handle, temp).r;
+                else
+                    closestHit.hit_material.smoothness = data_meshes[i].material.smoothness;
                 closest = temp.t;
             }
         }

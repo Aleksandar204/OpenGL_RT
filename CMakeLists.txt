@@ -5,7 +5,6 @@ project("EngineRT")
 find_package(glfw3 REQUIRED)
 find_package(assimp REQUIRED)
 
-
 include_directories("./include")
 
 file(GLOB_RECURSE SRC_FILES "src/*.cpp" "src/*.c")

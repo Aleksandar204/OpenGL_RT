@@ -75,6 +75,11 @@ Renderer::~Renderer()
     delete renderShader;
     glDeleteVertexArrays(1, &quad_vao);
     glDeleteBuffers(1, &quad_vbo);
+
+    glDeleteBuffers(1,&m_camera_ubo);
+    glDeleteBuffers(1,&m_mesh_ssbo);
+    glDeleteBuffers(1,&m_indices_ssbo);
+    glDeleteBuffers(1,&m_vertex_ssbo);
     glfwTerminate();
 }
 
@@ -114,26 +119,28 @@ void Renderer::renderFrame(Scene *render_scene)
                 mesh_info.mesh_matrix = gameobj->getGlobalModelMatrix();
                 mesh_info.indices_start = indices_mesh_start;
                 mesh_info.indices_num = mesh.indices.size();
-                mesh_info.material.albedo[0] = 0.5f;
-                mesh_info.material.albedo[1] = 0.5f;
-                mesh_info.material.albedo[2] = 0.5f;
+                mesh_info.material.albedo.r = 0.5f;
+                mesh_info.material.albedo.g = 0.5f;
+                mesh_info.material.albedo.b = 0.5f;
                 mesh_info.material.emmision_color[0] = 0.0f;
                 mesh_info.material.emmision_color[1] = 0.0f;
                 mesh_info.material.emmision_color[2] = 0.0f;
                 mesh_info.material.emmision_strength = 0.0f;
                 mesh_info.material.smoothness = 0.0f;
                 if (mesh.diffuse_maps.size() > 0)
+                {
                     mesh_info.diffuse_texture_handle = mesh.diffuse_maps[0]->getTextureHandle();
-                else
-                    mesh_info.diffuse_texture_handle = 0;
+                    mesh_info.material.albedo.r = -1.0f;
+                }
                 if (mesh.specular_maps.size() > 0)
+                {
                     mesh_info.specular_texture_handle = mesh.specular_maps[0]->getTextureHandle();
-                else
-                    mesh_info.specular_texture_handle = 0;
+                    mesh_info.material.smoothness = -1.0f;
+                }
                 if (mesh.normal_maps.size() > 0)
+                {
                     mesh_info.normal_texture_handle = mesh.normal_maps[0]->getTextureHandle();
-                else
-                    mesh_info.normal_texture_handle = 0;
+                }
                 all_meshes.push_back(mesh_info);
                 for (auto vertex : mesh.vertices)
                 {
@@ -162,13 +169,13 @@ void Renderer::renderFrame(Scene *render_scene)
     glBufferData(GL_UNIFORM_BUFFER, sizeof(RTCameraInfo), &caminfo, GL_STREAM_DRAW);
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_mesh_ssbo);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(RTMeshInfo) * all_meshes.size(), all_meshes.data(), GL_STATIC_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(RTMeshInfo) * all_meshes.size(), all_meshes.data(), GL_STREAM_DRAW);
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_indices_ssbo);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(int) * all_indices.size(), all_indices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(int) * all_indices.size(), all_indices.data(), GL_STREAM_DRAW);
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_vertex_ssbo);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(RTVertexInfo) * all_vertices.size(), all_vertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(RTVertexInfo) * all_vertices.size(), all_vertices.data(), GL_STREAM_DRAW);
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
