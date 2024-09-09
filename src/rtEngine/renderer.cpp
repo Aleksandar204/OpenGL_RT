@@ -86,7 +86,7 @@ Renderer::~Renderer()
 
 void Renderer::renderFrame(Scene *render_scene)
 {
-    glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
+    glClearColor(0.2, 0.8, 1.0, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     if (use_raytracing)

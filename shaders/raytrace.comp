@@ -3,7 +3,7 @@
 #extension GL_ARB_bindless_texture : require
 
 #define MAX_BOUNCE 4
-#define SAMPLES_PER_PIXEL 65
+#define SAMPLES_PER_PIXEL 16
 
 struct Material
 {
@@ -77,8 +77,8 @@ uniform int mesh_count;
 const float INFINITY = 1.0f / 0.0f;
 const float PI = 3.1415926535f;
 
-// #define GLOBAL_LIGHT vec3(0.53, 0.81, 0.92);
-#define GLOBAL_LIGHT vec3(0.005, 0.01, 0.02);
+#define GLOBAL_LIGHT vec3(0.2, 0.8, 1.0);
+// #define GLOBAL_LIGHT vec3(0.005, 0.01, 0.02);
 // #define GLOBAL_LIGHT vec3(0.005);
 
 uint state;
@@ -196,11 +196,6 @@ HitRecord calculate_collision(Ray r)
                 closest = temp.t;
             }
         }
-        if(i == 0)
-        {
-            closestHit.hit_material.emmision_color = vec3(1.0,0.9, 0.4);
-            closestHit.hit_material.emmision_strength = 3.0f;
-        }
     }
     return closestHit;
 }
@@ -211,7 +206,7 @@ vec3 trace_ray(vec3 viewport_location, vec3 u, vec3 v)
     for(int i = 0; i < SAMPLES_PER_PIXEL; i++)
     {
         Ray cp;
-        vec2 defocus = random_in_circle() * 0.1f;
+        vec2 defocus = random_in_circle() * 0.03f;
         cp.origin = camera_center + u * defocus.x + v * defocus.y;
         cp.direction = normalize(viewport_location - cp.origin + random_on_sphere() * 0.001f);
 

@@ -1,7 +1,6 @@
 #include <rtEngine/engine.hpp>
 
 int cnt_tmp = 0;
-bool pressed_tmp = false;
 
 void Engine::run()
 {
@@ -10,27 +9,22 @@ void Engine::run()
         double current_frametime = glfwGetTime();
         m_delta_time = current_frametime - m_last_frametime;
         m_last_frametime = current_frametime;
-        // if(cnt_tmp == 10)
-        // {
-        //     std::cout << 1/m_delta_time << std::endl;
-        //     cnt_tmp = 0;
-        // }
-        // cnt_tmp++;
+        if(cnt_tmp == 10)
+        {
+            std::cout << 1/m_delta_time << std::endl;
+            cnt_tmp = 0;
+        }
+        cnt_tmp++;
         startUpdateCurrentScene();
 
 
-        if(glfwGetKey(m_renderer.window, GLFW_KEY_W) == GLFW_PRESS && !pressed_tmp)
+        if(glfwGetKey(m_renderer.window, GLFW_KEY_R) == GLFW_PRESS)
         {
-            m_renderer.use_raytracing = !m_renderer.use_raytracing;
+            m_renderer.use_raytracing = true;
         }
-
-        if (glfwGetKey(m_renderer.window, GLFW_KEY_W) == GLFW_PRESS)
+        else if(glfwGetKey(m_renderer.window, GLFW_KEY_T) == GLFW_PRESS)
         {
-            pressed_tmp = true;
-        }
-        else
-        {
-            pressed_tmp = false;
+            m_renderer.use_raytracing = false;
         }
 
         m_renderer.renderFrame(m_current_scene);
