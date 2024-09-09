@@ -1,6 +1,7 @@
 #include <rtEngine/engine.hpp>
 
 int cnt_tmp = 0;
+bool pressed_tmp = false;
 
 void Engine::run()
 {
@@ -16,6 +17,21 @@ void Engine::run()
         }
         cnt_tmp++;
         startUpdateCurrentScene();
+
+
+        if(glfwGetKey(m_renderer.window, GLFW_KEY_W) == GLFW_PRESS && !pressed_tmp)
+        {
+            m_renderer.use_raytracing = !m_renderer.use_raytracing;
+        }
+
+        if (glfwGetKey(m_renderer.window, GLFW_KEY_W) == GLFW_PRESS)
+        {
+            pressed_tmp = true;
+        }
+        else
+        {
+            pressed_tmp = false;
+        }
 
         m_renderer.renderFrame(m_current_scene);
         glfwPollEvents();

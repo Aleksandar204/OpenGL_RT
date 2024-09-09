@@ -24,9 +24,8 @@ Renderer::Renderer()
         throw new std::runtime_error("Failed to initialize GLAD");
     }
 
-    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-
     glEnable(GL_DEPTH_TEST);
+    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
     glGenVertexArrays(1, &quad_vao);
     glGenBuffers(1, &quad_vbo);
@@ -87,9 +86,8 @@ Renderer::~Renderer()
 
 void Renderer::renderFrame(Scene *render_scene)
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     if (use_raytracing)
     {
@@ -101,15 +99,6 @@ void Renderer::renderFrame(Scene *render_scene)
     }
 
     glfwSwapBuffers(window);
-
-    quadShader->use();
-    glBindVertexArray(quad_vao);
-
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, quad_texture);
-
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    glBindVertexArray(0);
 }
 
 void Renderer::renderRaytrace(Scene *render_scene)
@@ -217,6 +206,15 @@ void Renderer::renderRaytrace(Scene *render_scene)
 
     glDispatchCompute((GLuint)WINDOW_WIDTH / 8, (GLuint)WINDOW_HEIGHT / 8, 1);
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+    quadShader->use();
+    glBindVertexArray(quad_vao);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, quad_texture);
+
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glBindVertexArray(0);
 }
 
 void Renderer::renderRaster(Scene *render_scene)
@@ -256,7 +254,7 @@ void Renderer::renderRaster(Scene *render_scene)
             {
                 mesh.raster_shader.use();
                 mesh.raster_shader.setMat4("model", gameobj->getGlobalModelMatrix());
-                mesh.raster_shader.setMat4("view", glm::lookAt(caminfo.camera_center, caminfo.look_at, glm::vec3(0,0,1)));
+                mesh.raster_shader.setMat4("view", glm::lookAt(caminfo.camera_center, caminfo.look_at, glm::vec3(0,1,0)));
                 mesh.raster_shader.setMat4("projection", glm::perspective(glm::radians(caminfo.fov), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f));
 
                 glBindVertexArray(mesh.getVAO());
