@@ -2,19 +2,14 @@
 
 #include <rtEngine/texture.hpp>
 #include <rtEngine/shader.hpp>
+#include <rtEngine/types.hpp>
+
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #include <vector>
-
-struct Vertex
-{
-    glm::vec3 position;
-    glm::vec3 normal;
-    glm::vec2 tex_coords;
-};
 
 class Mesh
 {
