@@ -10,7 +10,6 @@ struct BVHBounds
 {
     glm::vec3 bounds_min;
     glm::vec3 bounds_max;
-    bool has_point = false;
     glm::vec3 getCenter()
     {
         return (bounds_max+bounds_min) / 2.0f;
@@ -37,12 +36,13 @@ struct BVHBounds
             bounds_max = tri_max;
         }
     }
+private:
+    bool has_point = false;
 };
 
 struct BVHNode
 {
-    glm::vec3 bounds_min;
-    glm::vec3 bounds_max;
+    BVHBounds bounds;
     /// @brief Index of first child node if triangle_count is negative
     int start_index;
     int triangle_count;
@@ -58,9 +58,24 @@ struct BVHNode
     BVHNode(BVHBounds bounds);
 };
 
+struct BVHTri
+{
+    glm::vec3 center;
+    glm::vec3 min;
+    glm::vec3 max;
+    int v_first_index;
+
+    BVHTri(glm::vec3 center, glm::vec3 min, glm::vec3 max, int v_first_index);
+    BVHTri() {};
+};
+
 class BVH
 {
+private:
     std::vector<BVHNode> all_nodes;
+    std::vector<BVHTri> all_triangles;
 
+    void splitNode(int parentIndex, std::vector<Vertex>& vertices, int triangle_index_offset, int triangle_num, int depth);
+public:
     BVH(std::vector<Vertex>& mesh_vertices, std::vector<GLuint>& mesh_indices);
 };
