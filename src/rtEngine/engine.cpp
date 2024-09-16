@@ -24,22 +24,41 @@ void Engine::run()
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-        ImGui::ShowDemoWindow(); // Show demo window! :)
+        // ImGui::ShowDemoWindow(); // Show demo window! :)
+
+        ImGui::Begin("Renderer settings", nullptr, 0);
+        ImGui::Checkbox("Use Raytracing", &m_renderer.use_raytracing);
+        ImGui::Text("FPS: %.2f\nFrametime: %.2f ms", 1/m_delta_time, m_delta_time * 1000);
+        ImGui::InputInt("samples", &m_renderer.sample_count);
+        ImGui::InputInt("bounces", &m_renderer.bounce_count);
+        ImGui::End();
+
+        ImGui::Begin("Scene", nullptr, 0);
+        ImGui::Text("Current scene: %s", m_current_scene->name.c_str());
+
+        for (auto obj : m_current_scene->game_objects)
+        {
+            if (ImGui::CollapsingHeader(obj->name.c_str()))
+            {
+                ImGui::BeginChild(obj->name.c_str(), ImVec2(0,0), ImGuiChildFlags_AutoResizeY);
+                ImGui::Text("Position: ");
+                ImGui::Text("%.3f %.3f %.3f", obj->getGlobalPosition().x, obj->getGlobalPosition().y, obj->getGlobalPosition().z);
+                ImGui::Text("Rotation: ");
+                ImGui::Text("%.3f %.3f %.3f", glm::degrees(obj->getGlobalRotationEuler().x), glm::degrees(obj->getGlobalRotationEuler().y), glm::degrees(obj->getGlobalRotationEuler().z));
+                ImGui::Text("Scale: ");
+                ImGui::Text("%.3f %.3f %.3f", obj->getGlobalScale().x, obj->getGlobalScale().y, obj->getGlobalScale().z);
+                ImGui::EndChild();
+            }
+        }
+        ImGui::End();
 
         startUpdateCurrentScene();
 
-        if (glfwGetKey(m_renderer.window, GLFW_KEY_R) == GLFW_PRESS)
-        {
-            m_renderer.use_raytracing = true;
-        }
-        else if (glfwGetKey(m_renderer.window, GLFW_KEY_T) == GLFW_PRESS)
-        {
-            m_renderer.use_raytracing = false;
-        }
-
         m_renderer.renderFrame(m_current_scene);
+
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
         glfwSwapBuffers(m_renderer.window);
         glfwPollEvents();
     }

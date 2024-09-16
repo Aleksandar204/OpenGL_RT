@@ -2,9 +2,6 @@
 
 #extension GL_ARB_bindless_texture : require
 
-#define MAX_BOUNCE 4
-#define SAMPLES_PER_PIXEL 16
-
 struct Material
 {
     vec3 albedo;
@@ -71,7 +68,8 @@ layout(std140, binding = 4) uniform camera
     float fov;
     float focal_length;
 };
-
+uniform int sample_count;
+uniform int bounce_count;
 uniform int mesh_count;
 
 const float INFINITY = 1.0f / 0.0f;
@@ -203,7 +201,7 @@ HitRecord calculate_collision(Ray r)
 vec3 trace_ray(vec3 viewport_location, vec3 u, vec3 v)
 {
     vec3 pixel_color = vec3(0,0,0);
-    for(int i = 0; i < SAMPLES_PER_PIXEL; i++)
+    for(int i = 0; i < sample_count; i++)
     {
         Ray cp;
         vec2 defocus = random_in_circle() * 0.03f;
@@ -212,7 +210,7 @@ vec3 trace_ray(vec3 viewport_location, vec3 u, vec3 v)
 
         vec3 ray_col = vec3(1);
         vec3 in_light = vec3(0);
-        for(int j = 0; j< MAX_BOUNCE;j++)
+        for(int j = 0; j <= bounce_count;j++)
         {
             HitRecord hr = calculate_collision(cp);
             if(hr.hit)
@@ -233,7 +231,7 @@ vec3 trace_ray(vec3 viewport_location, vec3 u, vec3 v)
         }
         pixel_color += in_light;
     }
-    return pixel_color / SAMPLES_PER_PIXEL;
+    return pixel_color / sample_count;
 }
 
 void main() {    

@@ -187,6 +187,9 @@ void Renderer::renderRaytrace(Scene *render_scene)
     renderShader->use();
     renderShader->setInt("mesh_count", all_meshes.size());
 
+    renderShader->setInt("sample_count", sample_count);
+    renderShader->setInt("bounce_count", bounce_count);
+
     glBindBuffer(GL_UNIFORM_BUFFER, m_camera_ubo);
     glBufferData(GL_UNIFORM_BUFFER, sizeof(RTCameraInfo), &caminfo, GL_STREAM_DRAW);
 

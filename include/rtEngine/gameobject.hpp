@@ -18,6 +18,7 @@ class GameObject
 {
 public:
     Model *model = nullptr;
+    std::string name;
 
     std::vector<Component *> components;
     std::vector<GameObject *> children;
@@ -26,16 +27,18 @@ public:
 
     glm::mat4 modelMatrix = glm::mat4(1.0f);
 
-    GameObject(glm::vec3 pos, glm::vec3 rot, glm::vec3 si)
+    GameObject(std::string name, glm::vec3 pos, glm::vec3 rot, glm::vec3 si)
     {
+        this->name = name;
         modelMatrix = glm::translate(modelMatrix, pos);
         modelMatrix = glm::rotate(modelMatrix, glm::radians(rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
         modelMatrix = glm::rotate(modelMatrix, glm::radians(rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
         modelMatrix = glm::rotate(modelMatrix, glm::radians(rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
         modelMatrix = glm::scale(modelMatrix, si);
     }
-    GameObject()
+    GameObject(std::string name)
     {
+        this->name = name;
     }
 
     void addComponent(Component* component)
