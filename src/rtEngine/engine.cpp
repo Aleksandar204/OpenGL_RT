@@ -1,46 +1,62 @@
 #include <rtEngine/engine.hpp>
-
-int cnt_tmp = 0;
+#include "../imgui/imgui.h"
+#include "../imgui/imgui_impl_glfw.h"
+#include "../imgui/imgui_impl_opengl3.h"
 
 void Engine::run()
 {
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO &io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
+
+    // Setup Platform/Renderer backends
+    ImGui_ImplGlfw_InitForOpenGL(m_renderer.window, true); // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
+    ImGui_ImplOpenGL3_Init();
+
     while (!glfwWindowShouldClose(m_renderer.window))
     {
         double current_frametime = glfwGetTime();
         m_delta_time = current_frametime - m_last_frametime;
         m_last_frametime = current_frametime;
-        if(cnt_tmp == 10)
-        {
-            std::cout << 1/m_delta_time << std::endl;
-            cnt_tmp = 0;
-        }
-        cnt_tmp++;
+
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+        ImGui::ShowDemoWindow(); // Show demo window! :)
+
         startUpdateCurrentScene();
 
-
-        if(glfwGetKey(m_renderer.window, GLFW_KEY_R) == GLFW_PRESS)
+        if (glfwGetKey(m_renderer.window, GLFW_KEY_R) == GLFW_PRESS)
         {
             m_renderer.use_raytracing = true;
         }
-        else if(glfwGetKey(m_renderer.window, GLFW_KEY_T) == GLFW_PRESS)
+        else if (glfwGetKey(m_renderer.window, GLFW_KEY_T) == GLFW_PRESS)
         {
             m_renderer.use_raytracing = false;
         }
 
         m_renderer.renderFrame(m_current_scene);
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        glfwSwapBuffers(m_renderer.window);
         glfwPollEvents();
     }
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 }
 
 void Engine::startUpdateCurrentScene()
 {
-    std::vector<GameObject*> current_scene_gameobjects;
-    for(auto game_obj : m_current_scene->game_objects)
+    std::vector<GameObject *> current_scene_gameobjects;
+    for (auto game_obj : m_current_scene->game_objects)
     {
         current_scene_gameobjects.push_back(game_obj);
         game_obj->addChildrenRecursive(current_scene_gameobjects);
     }
-    for(auto game_obj : current_scene_gameobjects)
+    for (auto game_obj : current_scene_gameobjects)
     {
         updateAndStart(game_obj);
     }
@@ -48,9 +64,9 @@ void Engine::startUpdateCurrentScene()
 
 void Engine::updateAndStart(GameObject *obj)
 {
-    for(auto component: obj->components)
+    for (auto component : obj->components)
     {
-        if(!component->started)
+        if (!component->started)
         {
             component->Start();
             component->started = true;
@@ -69,9 +85,9 @@ void Engine::addScene(std::string scene_name)
 
 void Engine::setCurrentScene(std::string scene_name)
 {
-    for(auto scene:m_scenes)
+    for (auto scene : m_scenes)
     {
-        if(scene->name == scene_name)
+        if (scene->name == scene_name)
         {
             m_current_scene = scene;
             return;

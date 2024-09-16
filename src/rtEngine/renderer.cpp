@@ -97,8 +97,6 @@ void Renderer::renderFrame(Scene *render_scene)
     {
         renderRaster(render_scene);
     }
-
-    glfwSwapBuffers(window);
 }
 
 void Renderer::renderRaytrace(Scene *render_scene)
