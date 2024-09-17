@@ -46,7 +46,7 @@ struct RTCameraInfo
 class Renderer
 {
 public:
-    const int WINDOW_WIDTH = 1280, WINDOW_HEIGHT = 720;
+    int WINDOW_WIDTH = 1280, WINDOW_HEIGHT = 720;
 
     bool use_raytracing = false;
     int sample_count = 4;
@@ -56,9 +56,11 @@ public:
     ~Renderer();
 
     void renderFrame(Scene* render_scene);
-
+    void triggerResize();
+    
     GLFWwindow *window;
-
+    GLuint quad_texture;
+    float resolution_scale = 1.0f;
 private:
     const float quad_vertices[20] = {
         // viewport position ||   texture coords 3+2
@@ -67,7 +69,7 @@ private:
         1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
         1.0f, 1.0f, 0.0f, 1.0f, 1.0f};
 
-    GLuint quad_vao, quad_vbo, quad_texture;
+    GLuint quad_vao, quad_vbo;
     Shader *quadShader, *renderShader;
 
     RTCameraInfo caminfo;

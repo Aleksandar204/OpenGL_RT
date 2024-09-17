@@ -24,13 +24,18 @@ void Engine::run()
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-        // ImGui::ShowDemoWindow(); // Show demo window! :)
+        ImGui::ShowDemoWindow(); // Show demo window! :)
 
         ImGui::Begin("Renderer settings", nullptr, 0);
         ImGui::Checkbox("Use Raytracing", &m_renderer.use_raytracing);
         ImGui::Text("FPS: %.2f\nFrametime: %.2f ms", 1/m_delta_time, m_delta_time * 1000);
         ImGui::InputInt("samples", &m_renderer.sample_count);
         ImGui::InputInt("bounces", &m_renderer.bounce_count);
+        ImGui::Text("Raytracing render scale:");
+        if(ImGui::SliderFloat("##", &m_renderer.resolution_scale, 0.01f, 1.0f))
+        {
+            m_renderer.triggerResize();
+        }
         ImGui::End();
 
         ImGui::Begin("Scene", nullptr, 0);
