@@ -232,7 +232,7 @@ void Renderer::renderRaytrace(Scene *render_scene)
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-    glDispatchCompute((GLuint)WINDOW_WIDTH / 8 +1, (GLuint)WINDOW_HEIGHT / 8 +1, 1);
+    glDispatchCompute((GLuint)(WINDOW_WIDTH*resolution_scale) / 8 +1, (GLuint)(WINDOW_HEIGHT*resolution_scale) / 8 +1, 1);
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
     quadShader->use();

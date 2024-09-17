@@ -1,4 +1,5 @@
 #include <rtEngine/engine.hpp>
+#include <rtEngine/time.hpp>
 #include "../imgui/imgui.h"
 #include "../imgui/imgui_impl_glfw.h"
 #include "../imgui/imgui_impl_opengl3.h"
@@ -20,6 +21,7 @@ void Engine::run()
         double current_frametime = glfwGetTime();
         m_delta_time = current_frametime - m_last_frametime;
         m_last_frametime = current_frametime;
+        Time::setDeltaTime(m_delta_time);
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
