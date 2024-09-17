@@ -1,13 +1,39 @@
 #include <rtEngine/renderer.hpp>
 #include <rtEngine/camera.hpp>
+Renderer* current_renderer;
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+    glViewport(0,0,width,height);
+    current_renderer->WINDOW_HEIGHT = height;
+    current_renderer->WINDOW_WIDTH = width;
+
+    glDeleteTextures(1,&current_renderer->quad_texture);
+    glGenTextures(1,&current_renderer->quad_texture);
+    glBindTexture(GL_TEXTURE_2D, current_renderer->quad_texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, int(width * current_renderer->resolution_scale), int(height * current_renderer->resolution_scale), 0, GL_RGBA, GL_FLOAT, nullptr);    
+
+    glBindImageTexture(0, current_renderer->quad_texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void Renderer::triggerResize()
+{
+    framebuffer_size_callback(window, WINDOW_WIDTH, WINDOW_HEIGHT);
+}
 
 Renderer::Renderer()
 {
+    current_renderer = this;
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
     window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Compute shader RT", nullptr, nullptr);
 
@@ -25,6 +51,7 @@ Renderer::Renderer()
     }
 
     glEnable(GL_DEPTH_TEST);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
     glGenVertexArrays(1, &quad_vao);
@@ -205,7 +232,7 @@ void Renderer::renderRaytrace(Scene *render_scene)
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-    glDispatchCompute((GLuint)WINDOW_WIDTH / 8, (GLuint)WINDOW_HEIGHT / 8, 1);
+    glDispatchCompute((GLuint)WINDOW_WIDTH / 8 +1, (GLuint)WINDOW_HEIGHT / 8 +1, 1);
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
     quadShader->use();
