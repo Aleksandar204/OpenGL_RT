@@ -1,13 +1,13 @@
 #include<rtEngine/engine.hpp>
 #include <rtEngine/camera.hpp>
-
+#include <rtEngine/time.hpp>
 #include<rtEngine/mesh.hpp>
 
 class Spin : public Component
 {
     void Update() override
     {
-        game_object->rotateLocalEuler(glm::vec3(0.0f,2.0f, 0.0f));
+        game_object->rotateLocalEuler(Time::getDeltaTime() * glm::vec3(0.0f,100.0f, 0.0f));
     }
 };
 
