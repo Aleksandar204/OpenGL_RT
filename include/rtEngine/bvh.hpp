@@ -42,10 +42,12 @@ private:
 
 struct BVHNode
 {
-    BVHBounds bounds;
+    alignas(16) glm::vec3 bounds_min;
+    alignas(16) glm::vec3 bounds_max;
     /// @brief Index of first child node if triangle_count is negative
-    int start_index;
-    int triangle_count;
+    alignas(4) int start_index;
+    alignas(4) int triangle_count;
+    alignas(8) float padding[2];
 
     /// @brief Constructor called for leaf nodes, where the triangle count is not set to -1
     /// @param bounds 
@@ -72,11 +74,12 @@ struct BVHTri
 class BVH
 {
 private:
-    std::vector<BVHNode> all_nodes;
     std::vector<BVHTri> all_triangles;
 
     void splitNode(int parentIndex, int triangle_index_offset, int triangle_num, int depth);
 public:
+    std::vector<BVHNode> all_nodes;
+
     BVH(std::vector<Vertex>& mesh_vertices, std::vector<GLuint>& mesh_indices);
     BVH() {};
 };

@@ -7,7 +7,7 @@ class Spin : public Component
 {
     void Update() override
     {
-        game_object->rotateLocalEuler(Time::getDeltaTime() * glm::vec3(0.0f,100.0f, 0.0f));
+        game_object->rotateLocalEuler(Time::getDeltaTime() * glm::vec3(0.0f,20.0f, 0.0f));
     }
 };
 
@@ -19,9 +19,10 @@ int main()
 
     GameObject* shrek = new GameObject("Shronk", glm::vec3(0.0f,0.0f,0.0f),glm::vec3(0.0f,0.0f,0.0f),glm::vec3(1.0f,1.0f,1.0f));
     shrek->model = new Model("resources/models/shrek/shrek.obj");
+    shrek->addComponent(new Spin());
     e.getCurrentScene()->addGameObject(shrek);
 
-    GameObject* camera = new GameObject("Main Camera", glm::vec3(0.0f,1.0f,2.0f), glm::vec3(0.0f,0.0f,0.0f), glm::vec3(1.0f,1.0f,1.0f));
+    GameObject* camera = new GameObject("Main Camera", glm::vec3(0.0f,0.6f,1.0f), glm::vec3(0.0f,0.0f,0.0f), glm::vec3(1.0f,1.0f,1.0f));
     camera->addComponent(new Camera());
     // camera->addComponent(new Spin());
     e.getCurrentScene()->addGameObject(camera);

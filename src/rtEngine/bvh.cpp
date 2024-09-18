@@ -30,7 +30,7 @@ void BVH::splitNode(int parent_index, int triangle_index_offset,int triangle_num
     }
     else
     {
-        glm::vec3 parent_size = all_nodes[parent_index].bounds.getSize();
+        glm::vec3 parent_size = all_nodes[parent_index].bounds_max - all_nodes[parent_index].bounds_min;
         int split_axis;
         if(parent_size.x > parent_size.y && parent_size.x > parent_size.z)
             split_axis = 0;
@@ -39,8 +39,7 @@ void BVH::splitNode(int parent_index, int triangle_index_offset,int triangle_num
         else
             split_axis = 2;
 
-        float split_pos = all_nodes[parent_index].bounds.getCenter()[split_axis];
-
+        float split_pos = ((all_nodes[parent_index].bounds_max + all_nodes[parent_index].bounds_min) / 2.0f)[split_axis];
         BVHBounds bounds_left,bounds_right;
         int num_in_left = 0;
 
@@ -86,13 +85,15 @@ void BVH::splitNode(int parent_index, int triangle_index_offset,int triangle_num
 
 BVHNode::BVHNode(BVHBounds bounds, int index, int count)
 {
-    this->bounds = bounds;
+    this->bounds_min = bounds.bounds_min;
+    this->bounds_max = bounds.bounds_max;
     start_index = index;
     triangle_count = count;
 }
 BVHNode::BVHNode(BVHBounds bounds)
 {
-    this->bounds = bounds;
+    this->bounds_min = bounds.bounds_min;
+    this->bounds_max = bounds.bounds_max;
     start_index = -1;
     triangle_count = -1;
 }

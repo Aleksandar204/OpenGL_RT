@@ -170,7 +170,6 @@ HitRecord calculate_collision(Ray r)
 {
     HitRecord closestHit;
     closestHit.hit = false;
-    closestHit.hit_material.albedo = vec3(0);
     float closest = INFINITY;
     for(int i = 0;i< mesh_count;i++)
     {
@@ -182,13 +181,13 @@ HitRecord calculate_collision(Ray r)
             {
                 closestHit = temp;
                 closestHit.hit_material = temp.hit_material;
-                vec2 temp = closestHit.hit_material.albedo.xy;
+                vec2 tp = closestHit.hit_material.albedo.xy;
                 if(data_meshes[i].material.albedo.r == -1.0f)
-                    closestHit.hit_material.albedo = texture(data_meshes[i].albedo_texture_handle, temp).rgb;
+                    closestHit.hit_material.albedo = texture(data_meshes[i].albedo_texture_handle, tp).rgb;
                 else
                     closestHit.hit_material.albedo = data_meshes[i].material.albedo;
                 if(data_meshes[i].material.smoothness == -1.0f)
-                    closestHit.hit_material.smoothness = texture(data_meshes[i].specular_texture_handle, temp).r;
+                    closestHit.hit_material.smoothness = texture(data_meshes[i].specular_texture_handle, tp).r;
                 else
                     closestHit.hit_material.smoothness = data_meshes[i].material.smoothness;
                 closest = temp.t;
@@ -204,7 +203,7 @@ vec3 trace_ray(vec3 viewport_location, vec3 u, vec3 v)
     for(int i = 0; i < sample_count; i++)
     {
         Ray cp;
-        vec2 defocus = random_in_circle() * 0.03f;
+        vec2 defocus = random_in_circle() * 0.00f; // Disabled DoF
         cp.origin = camera_center + u * defocus.x + v * defocus.y;
         cp.direction = normalize(viewport_location - cp.origin + random_on_sphere() * 0.001f);
 
