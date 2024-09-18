@@ -31,4 +31,6 @@ Mesh::Mesh(std::vector<Vertex> vert, std::vector<GLuint> ind, std::vector<Textur
     glEnableVertexAttribArray(2);
 
     glBindVertexArray(0);
+
+    mesh_bvh = BVH(vertices, indices);
 }

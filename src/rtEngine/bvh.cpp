@@ -17,70 +17,70 @@ BVH::BVH(std::vector<Vertex>& mesh_vertices, std::vector<GLuint>& mesh_indices)
         bounds.GrowToInclude(min,max);
     }
     all_nodes.push_back(BVHNode(bounds));
-    // splitNode(0,mesh_vertices, 0, all_triangles.size(), 0);
+    splitNode(0, 0, all_triangles.size(), 0);
 }
 
-void BVH::splitNode(int parent_index, std::vector<Vertex>& vertices, int triangle_index_offset,int triangle_num, int depth)
+void BVH::splitNode(int parent_index, int triangle_index_offset,int triangle_num, int depth)
 {
-    // const int max_depth = 32;
-    // if(depth <= max_depth)
-    // {
-    //     glm::vec3 parent_size = all_nodes[parent_index].bounds.getSize();
-    //     int split_axis;
-    //     if(parent_size.x > parent_size.y && parent_size.x > parent_size.z)
-    //         split_axis = 0;
-    //     else if(parent_size.y > parent_size.x && parent_size.y > parent_size.z)
-    //         split_axis = 1;
-    //     else
-    //         split_axis = 2;
-
-    //     float split_pos = all_nodes[parent_index].bounds.getCenter()[split_axis];
-        
-    //     BVHBounds bounds_left,bounds_right;
-    //     int num_in_left = 0;
-
-    //     for(int i = triangle_index_offset; i < triangle_index_offset + triangle_num;i++)
-    //     {
-    //         BVHTri tri = all_triangles[i];
-    //         if(tri.center[split_axis] < split_pos)
-    //         {
-    //             bounds_left.GrowToInclude(tri.min,tri.max);
-    //             BVHTri swap = all_triangles[triangle_index_offset + num_in_left];
-    //             all_triangles[triangle_index_offset + num_in_left] = tri;
-    //             all_triangles[i] = swap;
-    //             num_in_left++;
-    //         }
-    //         else
-    //         {
-    //             bounds_right.GrowToInclude(tri.min,tri.max);
-    //         }
-    //     }
-
-    //     int num_in_right = triangle_num - num_in_left;
-    //     int tri_index_left = triangle_index_offset;
-    //     int tri_index_right = tri_index_left + num_in_left;
-
-    //     all_nodes[parent_index].start_index = all_nodes.size();
-
-    //     all_nodes.push_back(BVHNode(bounds_left, tri_index_left, 0));
-    //     all_nodes.push_back(BVHNode(bounds_left, tri_index_right, 0));
-
-    // }
-
-    const int max_depth = 32;
+    const int max_depth = 2;
     if(depth >= max_depth)
-        return;
-
-    glm::vec3 parent_size = all_nodes[parent_index].bounds.getSize();
-    int split_axis;
-    if(parent_size.x > parent_size.y && parent_size.x > parent_size.z)
-        split_axis = 0;
-    else if(parent_size.y > parent_size.x && parent_size.y > parent_size.z)
-        split_axis = 1;
+    {
+        all_nodes[parent_index].start_index = triangle_index_offset;
+        all_nodes[parent_index].triangle_count = triangle_num;
+    }
     else
-        split_axis = 2;
+    {
+        glm::vec3 parent_size = all_nodes[parent_index].bounds.getSize();
+        int split_axis;
+        if(parent_size.x > parent_size.y && parent_size.x > parent_size.z)
+            split_axis = 0;
+        else if(parent_size.y > parent_size.x && parent_size.y > parent_size.z)
+            split_axis = 1;
+        else
+            split_axis = 2;
 
-    float split_pos = all_nodes[parent_index].bounds.getCenter()[split_axis];
+        float split_pos = all_nodes[parent_index].bounds.getCenter()[split_axis];
+
+        BVHBounds bounds_left,bounds_right;
+        int num_in_left = 0;
+
+        for(int i = triangle_index_offset; i < triangle_index_offset + triangle_num;i++)
+        {
+            BVHTri tri = all_triangles[i];
+            if(tri.center[split_axis] < split_pos)
+            {
+                bounds_left.GrowToInclude(tri.min,tri.max);
+                BVHTri swap = all_triangles[triangle_index_offset + num_in_left];
+                all_triangles[triangle_index_offset + num_in_left] = tri;
+                all_triangles[i] = swap;
+                num_in_left++;
+            }
+            else
+            {
+                bounds_right.GrowToInclude(tri.min,tri.max);
+            }
+        }
+
+        int num_in_right = triangle_num - num_in_left;
+        int tri_index_left = triangle_index_offset;
+        int tri_index_right = tri_index_left + num_in_left;
+
+        if(num_in_left <= 1 || num_in_right <= 1)
+        {
+            all_nodes[parent_index].start_index = triangle_index_offset;
+            all_nodes[parent_index].triangle_count = triangle_num;
+            return;
+        }
+
+        all_nodes[parent_index].start_index = all_nodes.size();
+        int indexl = all_nodes.size(),indexr = indexl + 1;
+
+        all_nodes.push_back(BVHNode(bounds_left));
+        all_nodes.push_back(BVHNode(bounds_right));
+
+        splitNode(indexl, tri_index_left, num_in_left, depth + 1);
+        splitNode(indexr, tri_index_right, num_in_right, depth + 1);
+    }
 }
 
 
