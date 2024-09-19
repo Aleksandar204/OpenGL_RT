@@ -20,18 +20,21 @@ struct Vertex
 struct Mesh
 {
     Material material;
-    int indices_start;
-    int indices_num;
+    int root_node_index;
+    int indices_index_offset;
     sampler2D albedo_texture_handle;
     sampler2D specular_texture_handle;
     sampler2D normal_texture_handle;
-    mat4 model_matrix;
+    mat4 model_matrix; // converts local coords to world
+    mat4 inverse_model_matrix; // converts world coords to local
+    int vertex_index_offset;
 };
 
 struct Ray
 {
     vec3 origin;
     vec3 direction;
+    vec3 inv_direction;
 };
 
 struct HitRecord
@@ -42,6 +45,14 @@ struct HitRecord
     vec3 norm;
     float t;
     Material hit_material;
+};
+
+struct BVHNode
+{
+    vec3 bounds_min;
+    vec3 bounds_max;
+    int start_index;
+    int triangle_count;
 };
 
 
@@ -61,6 +72,11 @@ layout(std430, binding = 3) buffer meshes
     Mesh data_meshes[];
 };
 
+layout(std430, binding = 5) buffer bvh_nodes
+{
+    BVHNode data_nodes[];
+};
+
 layout(std140, binding = 4) uniform camera
 {
     vec3 camera_center;
@@ -68,6 +84,7 @@ layout(std140, binding = 4) uniform camera
     float fov;
     float focal_length;
 };
+
 uniform int sample_count;
 uniform int bounce_count;
 uniform int mesh_count;
@@ -231,6 +248,11 @@ vec3 trace_ray(vec3 viewport_location, vec3 u, vec3 v)
         pixel_color += in_light;
     }
     return pixel_color / sample_count;
+}
+
+vec3 trace_ray_bvh(vec3 viewport_location, vec3 u, vec3 v)
+{
+
 }
 
 void main() {    

@@ -7,6 +7,8 @@
 
 class Scene
 {
+private:
+    bool m_gameobjects_changed = false;
 public:
     std::string name;
     std::vector<GameObject *> game_objects;
@@ -18,5 +20,14 @@ public:
     void addGameObject(GameObject *game_object)
     {
         game_objects.push_back(game_object);
+        m_gameobjects_changed = true;
+    }
+    void resetChangedFlag()
+    {
+        m_gameobjects_changed = false;
+    }
+    bool getChangedFlag()
+    {
+        return m_gameobjects_changed;
     }
 };

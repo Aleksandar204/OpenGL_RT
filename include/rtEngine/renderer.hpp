@@ -15,23 +15,18 @@ struct RTMaterialInfo
     alignas(8)  float padding[2];
 };
 
-struct RTVertexInfo
-{
-    alignas(16) glm::vec3 position;
-    alignas(16) glm::vec3 normal;
-    alignas(8) glm::vec2 tex_coords;
-    alignas(8) float padding[2];
-};
-
 struct RTMeshInfo
 {
     RTMaterialInfo material;
-    int indices_start;
-    int indices_num;
+    int root_node_index;
+    int indices_index_offset;
     GLuint64 diffuse_texture_handle;
     GLuint64 specular_texture_handle;
     GLuint64 normal_texture_handle;
     glm::mat4 mesh_matrix;
+    glm::mat4 inverse_mesh_matrix;
+    int vertex_index_offset;
+    float padding[3];
 };
 
 struct RTCameraInfo
@@ -73,8 +68,15 @@ private:
     Shader *quadShader, *renderShader;
 
     RTCameraInfo caminfo;
-    GLuint m_vertex_ssbo, m_indices_ssbo, m_mesh_ssbo, m_camera_ubo;
+    GameObject* m_camera_gameobject = nullptr;
+    GLuint m_vertex_ssbo, m_indices_ssbo, m_mesh_ssbo, m_bvh_node_ssbo, m_camera_ubo;
+
+    std::vector<Vertex> m_all_scene_vertices;
+    std::vector<int> m_all_scene_indices;
+    std::vector<RTMeshInfo> m_all_scene_meshes;
+    std::vector<BVHNode> m_all_scene_nodes;
 
     void renderRaytrace(Scene *render_scene);
     void renderRaster(Scene *render_scene);
+    void updateRaytraceBuffers(Scene *render_scene);
 };
