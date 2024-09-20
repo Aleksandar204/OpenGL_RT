@@ -250,6 +250,43 @@ vec3 trace_ray(vec3 viewport_location, vec3 u, vec3 v)
     return pixel_color / sample_count;
 }*/
 
+HitRecord hit_triangle(int ind1, int ind2, int ind3, Ray r, int vertex_buffer_offset)
+{
+    Vertex vertA = data_vertices[ind1+vertex_buffer_offset];
+    Vertex vertB = data_vertices[ind2+vertex_buffer_offset];
+    Vertex vertC = data_vertices[ind3+vertex_buffer_offset];
+
+    vec3 edgeAB = vertB.position - vertA.position;
+    vec3 edgeAC = vertC.position - vertA.position;
+
+    vec3 normal_vec = cross(edgeAB,edgeAC);
+    vec3 ao = r.origin - vertA.position;
+    vec3 dao = cross(ao, r.direction);
+
+    float det = -dot(r.direction, normal_vec);
+    float inv_det = 1 / det;
+
+    float dist = dot(ao, normal_vec) * inv_det;
+    float u = dot(edgeAC, dao) * inv_det;
+    float v = -dot(edgeAB, dao) * inv_det;
+    float w = 1 - u - v;
+
+    HitRecord result;
+    result.hit = det >= 1e-6 && dist >= 0 && u >= 0 && v >= 0 && w >= 0;
+    result.t = dist;
+    result.point = at(r, dist);
+    result.norm = normalize(vertA.normal * w + vertB.normal * u + vertC.normal * v);
+    
+    vec2 uv = vertA.tex_coords * w + vertB.tex_coords * u + vertC.tex_coords * v;
+    result.hit_material.albedo = vec3(uv,0.0);
+    result.hit_material.emmision_color = vec3(0.0);
+    
+    result.hit_material.emmision_strength = 0.0;
+    result.hit_material.smoothness = 0.0;
+
+    return result;
+}
+
 bool hit_bounding_box(Ray ray, int box_index) // https://medium.com/@bromanz/another-view-on-the-classic-ray-aabb-intersection-algorithm-for-bvh-traversal-41125138b525
 {
     vec3 t0s = (data_nodes[box_index].bounds_min - ray.origin) * ray.inv_direction;
@@ -266,16 +303,38 @@ bool hit_bounding_box(Ray ray, int box_index) // https://medium.com/@bromanz/ano
 
 HitRecord hit_bvh_triangle(Ray ray, int mesh_index)
 {
-    bool hit_root = hit_bounding_box(ray, data_meshes[mesh_index].root_node_index);
-    HitRecord hr;
-    hr.hit = false;
-    hr.t = 10.0f;
-    hr.hit_material.albedo = vec3(1,0,0);
-    if(hit_root)
+    int node_stack[32];
+    int stack_index = 0;
+    node_stack[stack_index++] = data_meshes[mesh_index].root_node_index;
+
+    HitRecord result;
+    result.t = INFINITY;
+    result.hit = false;
+
+    while(stack_index > 0)
     {
-        hr.hit = true;
+        int curr_node_index = node_stack[--stack_index];
+
+        if(hit_bounding_box(ray, curr_node_index))
+        {
+            BVHNode curr_node = data_nodes[curr_node_index];
+            if(curr_node.triangle_count != -1) // Leaf node check triangles
+            {
+                for(int i = curr_node.start_index;i < curr_node.start_index + curr_node.triangle_count*3;i+= 3)
+                {
+                    HitRecord hr = hit_triangle(i + data_meshes[mesh_index].indices_index_offset,i+1 + data_meshes[mesh_index].indices_index_offset,i+2 + data_meshes[mesh_index].indices_index_offset, ray, data_meshes[mesh_index].vertex_index_offset);
+                    if(hr.hit && hr.t < result.t)
+                        result = hr;
+                }
+            }
+            else
+            {
+                node_stack[stack_index++] = curr_node.start_index;
+                node_stack[stack_index++] = curr_node.start_index + 1;
+            }
+        }
     }
-    return hr;
+    return result;
 }
 
 HitRecord calculate_collision_bvh(Ray world_space_ray)
