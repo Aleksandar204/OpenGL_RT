@@ -149,6 +149,10 @@ void Renderer::renderRaytrace(Scene *render_scene)
         }
     }
 
+    glBindBuffer(GL_UNIFORM_BUFFER, m_camera_ubo);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(RTCameraInfo), &caminfo, GL_DYNAMIC_DRAW);
+
+
 
     renderShader->use();
 
@@ -242,7 +246,7 @@ void Renderer::updateRaytraceBuffers(Scene *render_scene)
                 indices_offset += mesh.indices.size();
 
                 // Push all vertices to buffer
-                m_all_scene_vertices.insert(m_all_scene_vertices.end(), mesh.vertices.begin(), mesh.vertices.end()); // TODO POMERI U RTVERTEXINFO
+                m_all_scene_vertices.insert(m_all_scene_vertices.end(), mesh.vertices.begin(), mesh.vertices.end());
                 vertices_offset += mesh.vertices.size();
             }
         }
