@@ -130,7 +130,7 @@ void Renderer::renderFrame(Scene *render_scene)
 
 void Renderer::renderRaytrace(Scene *render_scene)
 {
-    if(render_scene->getChangedFlag() || true)
+    if(render_scene->getChangedFlag())
     {
         render_scene->resetChangedFlag();
         updateRaytraceBuffers(render_scene);
@@ -317,7 +317,8 @@ void Renderer::renderRaster(Scene *render_scene)
                 mesh.raster_shader.setMat4("view", glm::lookAt(caminfo.camera_center, caminfo.look_at, glm::vec3(0,1,0)));
                 mesh.raster_shader.setMat4("projection", glm::perspective(glm::radians(caminfo.fov), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f));
 
-                mesh.raster_shader.setBindlessTexture("albedo_texture_handle", mesh.diffuse_maps[0]->getTextureHandle());
+                if(mesh.diffuse_maps.size() > 0)
+                    mesh.raster_shader.setBindlessTexture("albedo_texture_handle", mesh.diffuse_maps[0]->getTextureHandle());
 
                 glBindVertexArray(mesh.getVAO());
                 glDrawElements(GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, 0);

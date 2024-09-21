@@ -22,7 +22,7 @@ BVH::BVH(std::vector<Vertex>& mesh_vertices, std::vector<GLuint>& mesh_indices)
 
 void BVH::splitNode(int parent_index, int triangle_index_offset,int triangle_num, int depth)
 {
-    const int max_depth = 16;
+    const int max_depth = 32;
     if(depth >= max_depth)
     {
         all_nodes[parent_index].start_index = triangle_index_offset;
