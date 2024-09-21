@@ -325,6 +325,7 @@ vec3 send_rays(vec3 viewport_location, vec3 u, vec3 v)
         vec3 direction = normalize(viewport_location - origin + random_on_sphere() * 0.002f);
         pixel_color += trace_ray_bvh(origin,direction);
     }
+    return pixel_color / sample_count;
 }
 
 void main() {    
