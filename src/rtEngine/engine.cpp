@@ -26,7 +26,9 @@ void Engine::run()
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
+
         // ImGui::ShowDemoWindow(); // Show demo window! :)
+
 
         ImGui::Begin("Renderer settings", nullptr, 0);
         ImGui::Checkbox("Use Raytracing", &m_renderer.use_raytracing);

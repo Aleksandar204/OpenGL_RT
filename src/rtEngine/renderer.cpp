@@ -259,6 +259,7 @@ void Renderer::updateRaytraceBuffers(Scene *render_scene)
     }
     
     renderShader->use();
+
     renderShader->setInt("mesh_count", m_all_scene_meshes.size());
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_mesh_ssbo);

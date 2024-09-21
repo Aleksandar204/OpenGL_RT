@@ -279,7 +279,7 @@ HitRecord calculate_collision_bvh(Ray world_space_ray)
                 closest_hit.hit_material.smoothness = data_meshes[i].material.smoothness;
         }
     }
-
+    
     return closest_hit;
 }
 
@@ -325,8 +325,6 @@ vec3 send_rays(vec3 viewport_location, vec3 u, vec3 v)
         vec3 direction = normalize(viewport_location - origin + random_on_sphere() * 0.002f);
         pixel_color += trace_ray_bvh(origin,direction);
     }
-
-    return pixel_color / sample_count;
 }
 
 void main() {    
