@@ -250,11 +250,11 @@ vec3 trace_ray(vec3 viewport_location, vec3 u, vec3 v)
     return pixel_color / sample_count;
 }*/
 
-HitRecord hit_triangle(int ind1, int ind2, int ind3, Ray r, int vertex_buffer_offset)
+HitRecord hit_triangle(int ind1, int ind2, int ind3, Ray r)
 {
-    Vertex vertA = data_vertices[ind1+vertex_buffer_offset];
-    Vertex vertB = data_vertices[ind2+vertex_buffer_offset];
-    Vertex vertC = data_vertices[ind3+vertex_buffer_offset];
+    Vertex vertA = data_vertices[ind1];
+    Vertex vertB = data_vertices[ind2];
+    Vertex vertC = data_vertices[ind3];
 
     vec3 edgeAB = vertB.position - vertA.position;
     vec3 edgeAC = vertC.position - vertA.position;
@@ -286,6 +286,21 @@ HitRecord hit_triangle(int ind1, int ind2, int ind3, Ray r, int vertex_buffer_of
 
     return result;
 }
+
+// Thanks to https://tavianator.com/2011/ray_box.html
+float RayBoundingBoxDst(Ray ray, vec3 boxMin, vec3 boxMax)
+{
+    vec3 tMin = (boxMin - ray.origin) * ray.inv_direction;
+    vec3 tMax = (boxMax - ray.origin) * ray.inv_direction;
+    vec3 t1 = min(tMin, tMax);
+    vec3 t2 = max(tMin, tMax);
+    float tNear = max(max(t1.x, t1.y), t1.z);
+    float tFar = min(min(t2.x, t2.y), t2.z);
+
+    bool hit = tFar >= tNear && tFar > 0;
+    float dst = hit ? tNear > 0 ? tNear : 0 : INFINITY;
+    return dst;
+};
 
 bool hit_bounding_box(Ray ray, int box_index) // https://medium.com/@bromanz/another-view-on-the-classic-ray-aabb-intersection-algorithm-for-bvh-traversal-41125138b525
 {
@@ -320,17 +335,21 @@ HitRecord hit_bvh_triangle(Ray ray, int mesh_index)
             BVHNode curr_node = data_nodes[curr_node_index];
             if(curr_node.triangle_count != -1) // Leaf node check triangles
             {
-                for(int i = curr_node.start_index;i < curr_node.start_index + curr_node.triangle_count*3;i+= 3)
+                // HitRecord e;
+                // e.hit = true;
+                // e.t = 10.0f;
+                // return e;
+                for(int i = curr_node.start_index*3; i < curr_node.start_index*3 + curr_node.triangle_count*3;i+=3)
                 {
-                    HitRecord hr = hit_triangle(i + data_meshes[mesh_index].indices_index_offset,i+1 + data_meshes[mesh_index].indices_index_offset,i+2 + data_meshes[mesh_index].indices_index_offset, ray, data_meshes[mesh_index].vertex_index_offset);
+                    HitRecord hr = hit_triangle(data_indices[i]+data_meshes[mesh_index].vertex_index_offset,data_indices[i+1]+data_meshes[mesh_index].vertex_index_offset,data_indices[i+2]+data_meshes[mesh_index].vertex_index_offset,ray);
                     if(hr.hit && hr.t < result.t)
                         result = hr;
                 }
             }
             else
             {
-                node_stack[stack_index++] = curr_node.start_index;
-                node_stack[stack_index++] = curr_node.start_index + 1;
+                node_stack[stack_index++] = curr_node.start_index + data_meshes[mesh_index].root_node_index;
+                node_stack[stack_index++] = curr_node.start_index + 1 + data_meshes[mesh_index].root_node_index;
             }
         }
     }
@@ -363,8 +382,6 @@ HitRecord calculate_collision_bvh(Ray world_space_ray)
     return closest_hit;
 }
 
-int num_hit = 0;
-
 vec3 trace_ray_bvh(vec3 ray_origin, vec3 ray_dir)
 {
     vec3 ray_col = vec3(1);
@@ -379,7 +396,6 @@ vec3 trace_ray_bvh(vec3 ray_origin, vec3 ray_dir)
         HitRecord hit_rec = calculate_collision_bvh(ray);
         if(hit_rec.hit)
         {
-            num_hit++;
             ray.origin = hit_rec.point;
             vec3 diffuse_dir = random_on_sphere() + hit_rec.norm;
             vec3 specular_dir = reflect(ray.direction, hit_rec.norm);

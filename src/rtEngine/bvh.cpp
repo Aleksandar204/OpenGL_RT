@@ -22,7 +22,7 @@ BVH::BVH(std::vector<Vertex>& mesh_vertices, std::vector<GLuint>& mesh_indices)
 
 void BVH::splitNode(int parent_index, int triangle_index_offset,int triangle_num, int depth)
 {
-    const int max_depth = 2;
+    const int max_depth = 8;
     if(depth >= max_depth)
     {
         all_nodes[parent_index].start_index = triangle_index_offset;
@@ -49,9 +49,7 @@ void BVH::splitNode(int parent_index, int triangle_index_offset,int triangle_num
             if(tri.center[split_axis] < split_pos)
             {
                 bounds_left.GrowToInclude(tri.min,tri.max);
-                BVHTri swap = all_triangles[triangle_index_offset + num_in_left];
-                all_triangles[triangle_index_offset + num_in_left] = tri;
-                all_triangles[i] = swap;
+                std::swap(all_triangles[i], all_triangles[triangle_index_offset+num_in_left]);
                 num_in_left++;
             }
             else
@@ -72,7 +70,8 @@ void BVH::splitNode(int parent_index, int triangle_index_offset,int triangle_num
         }
 
         all_nodes[parent_index].start_index = all_nodes.size();
-        int indexl = all_nodes.size(),indexr = indexl + 1;
+        int indexl = all_nodes.size();
+        int indexr = indexl + 1;
 
         all_nodes.push_back(BVHNode(bounds_left));
         all_nodes.push_back(BVHNode(bounds_right));

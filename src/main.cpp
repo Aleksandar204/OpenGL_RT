@@ -22,7 +22,7 @@ int main()
     // shrek->addComponent(new Spin());
     e.getCurrentScene()->addGameObject(shrek);
 
-    GameObject* camera = new GameObject("Main Camera", glm::vec3(0.0f,0.6f,2.0f), glm::vec3(0.0f,0.0f,0.0f), glm::vec3(1.0f,1.0f,1.0f));
+    GameObject* camera = new GameObject("Main Camera", glm::vec3(0.0f,0.6f,1.5f), glm::vec3(0.0f,0.0f,0.0f), glm::vec3(1.0f,1.0f,1.0f));
     camera->addComponent(new Camera());
     // camera->addComponent(new Spin());
     e.getCurrentScene()->addGameObject(camera);
@@ -32,8 +32,9 @@ int main()
     // crate->addComponent(new Spin());
     // e.getCurrentScene()->addGameObject(crate);
 
-    // GameObject* crate2 = new GameObject("Crate 2", glm::vec3(-3.0f,1.3f,-5.0f),glm::vec3(0.0f,0.0f,0.0f),glm::vec3(1.0f,1.0f,1.0f));
+    // GameObject* crate2 = new GameObject("Crate 2", glm::vec3(0.0f,0.0f,0.0f),glm::vec3(0.0f,0.0f,0.0f),glm::vec3(1.0f,1.0f,1.0f));
     // crate2->model = new Model("resources/models/container/untitled.obj");
+    // // crate2->addComponent(new Spin());
     // e.getCurrentScene()->addGameObject(crate2);
 
     // GameObject* ground = new GameObject("Ground",glm::vec3(0.0f,0.0f,0.0f),glm::vec3(0.0f,0.0f,0.0f),glm::vec3(1.0f,1.0f,1.0f));

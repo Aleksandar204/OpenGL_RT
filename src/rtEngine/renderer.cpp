@@ -242,12 +242,32 @@ void Renderer::updateRaytraceBuffers(Scene *render_scene)
                 bvh_nodes_offset += mesh.mesh_bvh.all_nodes.size();
 
                 // Push all indices to buffer
-                m_all_scene_indices.insert(m_all_scene_indices.end(),mesh.indices.begin(), mesh.indices.end());
+                // m_all_scene_indices.insert(m_all_scene_indices.end(),mesh.indices.begin(), mesh.indices.end());
                 indices_offset += mesh.indices.size();
+                for(auto tri : mesh.mesh_bvh.all_triangles)
+                {
+                    m_all_scene_indices.push_back(mesh.indices[tri.v_first_index]);
+                    m_all_scene_indices.push_back(mesh.indices[tri.v_first_index+1]);
+                    m_all_scene_indices.push_back(mesh.indices[tri.v_first_index+2]);
+                }
 
                 // Push all vertices to buffer
                 m_all_scene_vertices.insert(m_all_scene_vertices.end(), mesh.vertices.begin(), mesh.vertices.end());
                 vertices_offset += mesh.vertices.size();
+
+                for (int i = 0; i < mesh.mesh_bvh.all_nodes.size(); i++)
+                {
+                    if(mesh.mesh_bvh.all_nodes[i].triangle_count != -1)
+                    {
+                        std::cout << "\nLeaf Node:\n";
+                        std::cout << mesh.mesh_bvh.all_nodes[i].start_index*3 << " " <<  mesh.mesh_bvh.all_nodes[i].start_index*3 + mesh.mesh_bvh.all_nodes[i].triangle_count*3 << std::endl;
+                        for(int j = mesh.mesh_bvh.all_nodes[i].start_index; j < mesh.mesh_bvh.all_nodes[i].start_index + mesh.mesh_bvh.all_nodes[i].triangle_count*3;j+=3)
+                        {
+                            std::cout << mesh.indices[j] << mesh.indices[j+1] << mesh.indices[j+2] << " ";
+                        }
+                    }
+                }
+                std::cout << std::endl;
             }
         }
     }

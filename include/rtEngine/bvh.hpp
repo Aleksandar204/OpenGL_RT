@@ -74,12 +74,10 @@ struct BVHTri
 class BVH
 {
 private:
-    std::vector<BVHTri> all_triangles;
-
     void splitNode(int parentIndex, int triangle_index_offset, int triangle_num, int depth);
 public:
     std::vector<BVHNode> all_nodes;
-
+    std::vector<BVHTri> all_triangles;
     BVH(std::vector<Vertex>& mesh_vertices, std::vector<GLuint>& mesh_indices);
     BVH() {};
 };
