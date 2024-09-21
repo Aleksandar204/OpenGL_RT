@@ -2,6 +2,8 @@
 
 #include <rtEngine/texture.hpp>
 #include <rtEngine/shader.hpp>
+#include <rtEngine/types.hpp>
+#include<rtEngine/bvh.hpp>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -9,19 +11,13 @@
 
 #include <vector>
 
-struct Vertex
-{
-    glm::vec3 position;
-    glm::vec3 normal;
-    glm::vec2 tex_coords;
-};
-
 class Mesh
 {
 private:
     GLuint m_vao,m_vbo,m_ebo;
 public:
     Shader raster_shader = Shader("resources/shaders/basicUnlit.vert", "resources/shaders/basicUnlit.frag");
+    BVH mesh_bvh;
     std::vector<Vertex> vertices;
     std::vector<GLuint> indices;
     std::vector<Texture*> diffuse_maps;
