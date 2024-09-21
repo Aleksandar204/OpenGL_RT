@@ -17,29 +17,28 @@ int main()
     e.addScene("game");
     e.setCurrentScene("game");
 
-    GameObject* shrek = new GameObject("Shronk", glm::vec3(0.0f,0.0f,0.0f),glm::vec3(0.0f,0.0f,0.0f),glm::vec3(1.0f,1.0f,1.0f));
-    shrek->model = new Model("resources/models/shrek/shrek.obj");
-    // shrek->addComponent(new Spin());
-    e.getCurrentScene()->addGameObject(shrek);
+    // GameObject* shrek = new GameObject("Shronk", glm::vec3(0.0f,0.0f,0.0f),glm::vec3(0.0f,0.0f,0.0f),glm::vec3(1.0f,1.0f,1.0f));
+    // shrek->model = new Model("resources/models/shrek/shrek.obj");
+    // // shrek->addComponent(new Spin());
+    // e.getCurrentScene()->addGameObject(shrek);
 
-    GameObject* camera = new GameObject("Main Camera", glm::vec3(0.0f,0.6f,1.0f), glm::vec3(0.0f,0.0f,0.0f), glm::vec3(1.0f,1.0f,1.0f));
+    GameObject* camera = new GameObject("Main Camera", glm::vec3(0.0f,3.0f,0.0f), glm::vec3(0.0f,0.0f,0.0f), glm::vec3(1.0f,1.0f,1.0f));
     camera->addComponent(new Camera());
     // camera->addComponent(new Spin());
     e.getCurrentScene()->addGameObject(camera);
 
-    // GameObject* crate = new GameObject("Crate 1", glm::vec3(3.0f,1.3f,-7.0f),glm::vec3(0.0f,0.0f,0.0f),glm::vec3(1.0f,1.0f,1.0f));
-    // crate->model = new Model("resources/models/container/untitled.obj");
-    // crate->addComponent(new Spin());
-    // e.getCurrentScene()->addGameObject(crate);
+    GameObject* crate = new GameObject("Crate 1", glm::vec3(3.0f,1.3f,-7.0f),glm::vec3(0.0f,0.0f,0.0f),glm::vec3(1.0f,1.0f,1.0f));
+    crate->model = new Model("resources/models/container/untitled.obj");
+    crate->addComponent(new Spin());
+    e.getCurrentScene()->addGameObject(crate);
 
-    // GameObject* crate2 = new GameObject("Crate 2", glm::vec3(0.0f,0.0f,0.0f),glm::vec3(0.0f,0.0f,0.0f),glm::vec3(1.0f,1.0f,1.0f));
-    // crate2->model = new Model("resources/models/container/untitled.obj");
-    // // crate2->addComponent(new Spin());
-    // e.getCurrentScene()->addGameObject(crate2);
+    GameObject* crate2 = new GameObject("Crate 2", glm::vec3(-3.0f,1.3f,-5.0f),glm::vec3(0.0f,0.0f,0.0f),glm::vec3(1.0f,1.0f,1.0f));
+    crate2->model = new Model("resources/models/container/untitled.obj");
+    e.getCurrentScene()->addGameObject(crate2);
 
-    // GameObject* ground = new GameObject("Ground",glm::vec3(0.0f,0.0f,0.0f),glm::vec3(0.0f,0.0f,0.0f),glm::vec3(1.0f,1.0f,1.0f));
-    // ground->model = new Model("resources/models/ground/TestPlane.obj");
-    // e.getCurrentScene()->addGameObject(ground);
+    GameObject* ground = new GameObject("Ground",glm::vec3(0.0f,0.0f,0.0f),glm::vec3(0.0f,0.0f,0.0f),glm::vec3(1.0f,1.0f,1.0f));
+    ground->model = new Model("resources/models/ground/TestPlane.obj");
+    e.getCurrentScene()->addGameObject(ground);
 
     e.run();
     return 0;

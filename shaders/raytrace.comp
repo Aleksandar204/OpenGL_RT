@@ -253,7 +253,7 @@ HitRecord calculate_collision_bvh(Ray world_space_ray)
     for(int i = 0;i < mesh_count; i++)
     {
         local_space_ray.origin = (data_meshes[i].inverse_model_matrix * vec4(world_space_ray.origin, 1.0f)).xyz;
-        local_space_ray.direction = (data_meshes[i].inverse_model_matrix * vec4(world_space_ray.direction, 1.0f)).xyz;
+        local_space_ray.direction = (data_meshes[i].inverse_model_matrix * vec4(world_space_ray.direction, 0.0f)).xyz;
         local_space_ray.inv_direction = 1 / local_space_ray.direction;
 
         HitRecord hit_mesh = hit_bvh_triangle(local_space_ray, i);
@@ -262,6 +262,10 @@ HitRecord calculate_collision_bvh(Ray world_space_ray)
         {
             closest = hit_mesh.t;
             closest_hit = hit_mesh;
+            // closest_hit.norm = normalize(data_meshes[i].model_matrix * vec4(closest_hit.norm, 1)).xyz;
+            // closest_hit.point = normalize(data_meshes[i].model_matrix * vec4(closest_hit.point, 1)).xyz;
+            closest_hit.point = at(world_space_ray, closest_hit.t);
+            closest_hit.norm = mat3(data_meshes[i].model_matrix) * closest_hit.norm;
 
             // Sample textures mesh from triangle UV coordinates stored in the HitRecord albedo
             vec2 tp = closest_hit.hit_material.albedo.xy;

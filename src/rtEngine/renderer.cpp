@@ -130,7 +130,7 @@ void Renderer::renderFrame(Scene *render_scene)
 
 void Renderer::renderRaytrace(Scene *render_scene)
 {
-    if(render_scene->getChangedFlag())
+    if(render_scene->getChangedFlag() || true)
     {
         render_scene->resetChangedFlag();
         updateRaytraceBuffers(render_scene);

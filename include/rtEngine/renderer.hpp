@@ -44,8 +44,8 @@ public:
     int WINDOW_WIDTH = 1280, WINDOW_HEIGHT = 720;
 
     bool use_raytracing = false;
-    int sample_count = 1;
-    int bounce_count = 2;
+    int sample_count = 4;
+    int bounce_count = 4;
 
     Renderer();
     ~Renderer();
