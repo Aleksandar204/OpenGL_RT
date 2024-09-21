@@ -136,120 +136,6 @@ vec3 at(Ray r, float dist)
     return r.origin + dist*r.direction;
 }
 
-/*HitRecord hit_triangle(int ind1, int ind2, int ind3, mat4 matrix, Ray r)
-{
-    Vertex vertA = data_vertices[ind1];
-    Vertex vertB = data_vertices[ind2];
-    Vertex vertC = data_vertices[ind3];
-
-    vertA.position = (matrix * vec4(vertA.position, 1)).xyz;
-    vertA.normal = mat3(transpose(inverse(matrix))) * vertA.normal;
-
-
-    vertB.position = (matrix * vec4(vertB.position, 1)).xyz;
-    vertB.normal = mat3(transpose(inverse(matrix))) * vertB.normal;
-
-    vertC.position = (matrix * vec4(vertC.position, 1)).xyz;
-    vertC.normal = mat3(transpose(inverse(matrix))) * vertC.normal;
-
-    vec3 edgeAB = vertB.position - vertA.position;
-    vec3 edgeAC = vertC.position - vertA.position;
-
-    vec3 normal_vec = cross(edgeAB,edgeAC);
-    vec3 ao = r.origin - vertA.position;
-    vec3 dao = cross(ao, r.direction);
-
-    float det = -dot(r.direction, normal_vec);
-    float inv_det = 1 / det;
-
-    float dist = dot(ao, normal_vec) * inv_det;
-    float u = dot(edgeAC, dao) * inv_det;
-    float v = -dot(edgeAB, dao) * inv_det;
-    float w = 1 - u - v;
-
-    HitRecord result;
-    result.hit = det >= 1e-6 && dist >= 0 && u >= 0 && v >= 0 && w >= 0;
-    result.t = dist;
-    result.point = at(r, dist);
-    result.norm = normalize(vertA.normal * w + vertB.normal * u + vertC.normal * v);
-    
-    vec2 uv = vertA.tex_coords * w + vertB.tex_coords * u + vertC.tex_coords * v;
-    result.hit_material.albedo = vec3(uv,0.0);
-    result.hit_material.emmision_color = vec3(0.0);
-    
-    result.hit_material.emmision_strength = 0.0;
-    result.hit_material.smoothness = 0.0;
-
-    return result;
-}
-
-HitRecord calculate_collision(Ray r)
-{
-    HitRecord closestHit;
-    closestHit.hit = false;
-    float closest = INFINITY;
-    for(int i = 0;i< mesh_count;i++)
-    {
-        for(int j = 0; j < data_meshes[i].indices_num; j += 3)
-        {
-            HitRecord temp = hit_triangle(data_indices[data_meshes[i].indices_start + j], data_indices[data_meshes[i].indices_start + j +1], data_indices[data_meshes[i].indices_start + j +2],data_meshes[i].model_matrix ,r);
-
-            if(temp.hit && temp.t < closest)
-            {
-                closestHit = temp;
-                closestHit.hit_material = temp.hit_material;
-                vec2 tp = closestHit.hit_material.albedo.xy;
-                if(data_meshes[i].material.albedo.r == -1.0f)
-                    closestHit.hit_material.albedo = texture(data_meshes[i].albedo_texture_handle, tp).rgb;
-                else
-                    closestHit.hit_material.albedo = data_meshes[i].material.albedo;
-                if(data_meshes[i].material.smoothness == -1.0f)
-                    closestHit.hit_material.smoothness = texture(data_meshes[i].specular_texture_handle, tp).r;
-                else
-                    closestHit.hit_material.smoothness = data_meshes[i].material.smoothness;
-                closest = temp.t;
-            }
-        }
-    }
-    return closestHit;
-}
-
-vec3 trace_ray(vec3 viewport_location, vec3 u, vec3 v)
-{
-    vec3 pixel_color = vec3(0,0,0);
-    for(int i = 0; i < sample_count; i++)
-    {
-        Ray cp;
-        vec2 defocus = random_in_circle() * 0.00f; // Disabled DoF
-        cp.origin = camera_center + u * defocus.x + v * defocus.y;
-        cp.direction = normalize(viewport_location - cp.origin + random_on_sphere() * 0.001f);
-
-        vec3 ray_col = vec3(1);
-        vec3 in_light = vec3(0);
-        for(int j = 0; j <= bounce_count;j++)
-        {
-            HitRecord hr = calculate_collision(cp);
-            if(hr.hit)
-            {
-                cp.origin = hr.point;
-                vec3 diffuse_dir = random_on_sphere() + hr.norm;
-                vec3 specular_dir = reflect(cp.direction, hr.norm);
-                cp.direction = mix(diffuse_dir,specular_dir,hr.hit_material.smoothness);
-                vec3 emmited_light = hr.hit_material.emmision_color * hr.hit_material.emmision_strength;
-                in_light += emmited_light * ray_col;
-                ray_col *= hr.hit_material.albedo;
-            }
-            else
-            {
-                in_light += ray_col * GLOBAL_LIGHT;
-                break;
-            }
-        }
-        pixel_color += in_light;
-    }
-    return pixel_color / sample_count;
-}*/
-
 HitRecord hit_triangle(int ind1, int ind2, int ind3, Ray r)
 {
     Vertex vertA = data_vertices[ind1];
@@ -376,6 +262,17 @@ HitRecord calculate_collision_bvh(Ray world_space_ray)
         {
             closest = hit_mesh.t;
             closest_hit = hit_mesh;
+
+            // Sample textures mesh from triangle UV coordinates stored in the HitRecord albedo
+            vec2 tp = closest_hit.hit_material.albedo.xy;
+            if(data_meshes[i].material.albedo.r == -1.0f)
+                closest_hit.hit_material.albedo = texture(data_meshes[i].albedo_texture_handle, tp).rgb;
+            else
+                closest_hit.hit_material.albedo = data_meshes[i].material.albedo;
+            if(data_meshes[i].material.smoothness == -1.0f)
+                closest_hit.hit_material.smoothness = texture(data_meshes[i].specular_texture_handle, tp).r;
+            else
+                closest_hit.hit_material.smoothness = data_meshes[i].material.smoothness;
         }
     }
 

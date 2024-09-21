@@ -22,7 +22,7 @@ int main()
     // shrek->addComponent(new Spin());
     e.getCurrentScene()->addGameObject(shrek);
 
-    GameObject* camera = new GameObject("Main Camera", glm::vec3(0.0f,0.6f,1.5f), glm::vec3(0.0f,0.0f,0.0f), glm::vec3(1.0f,1.0f,1.0f));
+    GameObject* camera = new GameObject("Main Camera", glm::vec3(0.0f,0.6f,1.0f), glm::vec3(0.0f,0.0f,0.0f), glm::vec3(1.0f,1.0f,1.0f));
     camera->addComponent(new Camera());
     // camera->addComponent(new Spin());
     e.getCurrentScene()->addGameObject(camera);
