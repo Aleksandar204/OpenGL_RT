@@ -41,6 +41,12 @@ public:
         this->name = name;
     }
 
+    void addChild(GameObject* child)
+    {
+        child->parent = this;
+        children.push_back(child);
+    }
+
     void addComponent(Component* component)
     {
         component->game_object = this;

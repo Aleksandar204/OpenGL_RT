@@ -54,19 +54,27 @@ int main()
     e.setCurrentScene("game");
     window2 = e.m_renderer.window;
 
-    GameObject* dragon = new GameObject("Shrek",glm::vec3(-5.0f,1.0f,0.0f),glm::vec3(0.0f,0.0f,0.0f),glm::vec3(10.0f,10.0f,10.0f));
-    dragon->model = new Model("resources/models/dragon/dragon1percent.obj");
+    GameObject* dragon = new GameObject("Dragon",glm::vec3(-7.0f,5.0f,-7.0f),glm::vec3(0.0f,-70.0f,0.0f),glm::vec3(1.0f,1.0f,1.0f));
+    dragon->model = new Model("resources/models/dragon/dragon_scaled.obj");
     e.getCurrentScene()->addGameObject(dragon);
 
-    // GameObject* ground = new GameObject("Ground",glm::vec3(0.0f,0.0f,0.0f),glm::vec3(0.0f,0.0f,0.0f),glm::vec3(1.0f,1.0f,1.0f));
-    // ground->model = new Model("resources/models/CornellBox/CornellBox-Original.obj");
-    // e.getCurrentScene()->addGameObject(ground);
+    GameObject* shrek = new GameObject("Shrek",glm::vec3(7.0f,0.0f,-8.0f),glm::vec3(0.0f,0.0f,0.0f),glm::vec3(1.0f,1.0f,1.0f));
+    shrek->model = new Model("resources/models/shrek/shrek_scaled.obj");
+    e.getCurrentScene()->addGameObject(shrek);
 
-    GameObject* groundtemp = new GameObject("Ground",glm::vec3(0.0f,-1.0f,0.0f),glm::vec3(0.0f,0.0f,0.0f),glm::vec3(1.0f,1.0f,1.0f));
-    groundtemp->model = new Model("resources/models/ground/TestPlane.obj");
-    e.getCurrentScene()->addGameObject(groundtemp);
+    GameObject* crate = new GameObject("Wooden Crate", glm::vec3(2.0f,1.0f,-4.0f),glm::vec3(0.0f,0.0f,0.0f),glm::vec3(1.0f,1.0f,1.0f));
+    crate->model = new Model("resources/models/container/untitled.obj");
+    e.getCurrentScene()->addGameObject(crate);
 
-    GameObject* camera = new GameObject("Main Camera", glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,90.0f,0.0f), glm::vec3(1.0f,1.0f,1.0f));
+    GameObject* crate2 = new GameObject("Wooden Crate 2", glm::vec3(0.0f,2.0f,0.0f),glm::vec3(0.0f,30.0f,0.0f),glm::vec3(1.0f,1.0f,1.0f));
+    crate2->model = new Model("resources/models/container/untitled.obj");
+    crate->addChild(crate2);
+
+    GameObject* ground_plane = new GameObject("Ground plane",glm::vec3(0.0f,0.0f,0.0f),glm::vec3(0.0f,0.0f,0.0f),glm::vec3(1.0f,1.0f,1.0f));
+    ground_plane->model = new Model("resources/models/ground/TestPlane.obj");
+    e.getCurrentScene()->addGameObject(ground_plane);
+
+    GameObject* camera = new GameObject("Main Camera", glm::vec3(0.0f,5.0f,4.0f), glm::vec3(0.0f,0.0f,0.0f), glm::vec3(1.0f,1.0f,1.0f));
     camera->addComponent(new Camera());
     camera->addComponent(new FreeCam());
     e.getCurrentScene()->addGameObject(camera);
