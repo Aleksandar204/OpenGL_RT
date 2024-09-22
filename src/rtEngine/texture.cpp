@@ -2,6 +2,7 @@
 #include <stb/stb_image.h>
 
 #include <rtEngine/texture.hpp>
+#define STB_IMAGE_WRITE_IMPLEMENTATION
 
 Texture::Texture(const char *texturePath)
 {
@@ -18,12 +19,12 @@ Texture::Texture(const char *texturePath)
     GLenum format;
     switch (nrChannels)
     {
-    // case 1:
-    //     format = GL_LUMINANCE;
-    //     break;
-    // case 2:
-    //     format = GL_LUMINANCE_ALPHA;
-    //     break;
+    case 1:
+        format = GL_RED;
+        break;
+    case 2:
+        format = GL_RG;
+        break;
     case 3:
         format = GL_RGB;
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);

@@ -11,11 +11,12 @@ public:
     void removeScene(std::string scene_name);
     void setCurrentScene(std::string scene_name);
     Scene* getCurrentScene();
+    Renderer m_renderer;
 
 private:
     double m_delta_time, m_last_frametime;
 
-    Renderer m_renderer;
+    
     std::vector<Scene *> m_scenes;
     Scene *m_current_scene = nullptr;
 
