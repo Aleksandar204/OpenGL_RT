@@ -14,11 +14,14 @@
 #include <rtEngine/model.hpp>
 #include <rtEngine/component.hpp>
 
+class Engine;
+
 class GameObject
 {
 public:
     Model *model = nullptr;
     std::string name;
+    Engine& my_engine;
 
     std::vector<Component *> components;
     std::vector<GameObject *> children;
@@ -27,7 +30,7 @@ public:
 
     glm::mat4 modelMatrix = glm::mat4(1.0f);
 
-    GameObject(std::string name, glm::vec3 pos, glm::vec3 rot, glm::vec3 si)
+    GameObject(std::string name, glm::vec3 pos, glm::vec3 rot, glm::vec3 si, Engine& engine): my_engine(engine)
     {
         this->name = name;
         modelMatrix = glm::translate(modelMatrix, pos);
@@ -36,7 +39,7 @@ public:
         modelMatrix = glm::rotate(modelMatrix, glm::radians(rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
         modelMatrix = glm::scale(modelMatrix, si);
     }
-    GameObject(std::string name)
+    GameObject(std::string name, Engine& engine): my_engine(engine)
     {
         this->name = name;
     }
