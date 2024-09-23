@@ -40,6 +40,10 @@ void Engine::run()
         {
             m_renderer.triggerResize();
         }
+        if(ImGui::Checkbox("Combine frames", &m_renderer.combine_frames))
+        {
+            m_renderer.resetCombinedFrames();
+        }
         ImGui::End();
 
         ImGui::Begin("Scene", nullptr, 0);

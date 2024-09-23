@@ -52,10 +52,12 @@ public:
 
     void renderFrame(Scene* render_scene);
     void triggerResize();
+    void resetCombinedFrames() {frames_num = 1;}
     
     GLFWwindow *window;
     GLuint quad_texture;
     float resolution_scale = 1.0f;
+    bool combine_frames = false;
 private:
     const float quad_vertices[20] = {
         // viewport position ||   texture coords 3+2
@@ -75,6 +77,8 @@ private:
     std::vector<int> m_all_scene_indices;
     std::vector<RTMeshInfo> m_all_scene_meshes;
     std::vector<BVHNode> m_all_scene_nodes;
+
+    int frames_num = 1;
 
     void renderRaytrace(Scene *render_scene);
     void renderRaster(Scene *render_scene);

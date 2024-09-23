@@ -57,7 +57,7 @@ struct BVHNode
 
 
 layout (local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
-layout(rgba32f, location = 0, binding = 0) writeonly uniform image2D img_output;
+layout(rgba32f, location = 0, binding = 0) uniform image2D img_output;
 
 layout(std430, binding = 1) buffer vertices
 {
@@ -88,6 +88,9 @@ layout(std140, binding = 4) uniform camera
 uniform int sample_count;
 uniform int bounce_count;
 uniform int mesh_count;
+uniform int rng_seed;
+
+uniform int frames_num;
 
 const float INFINITY = 1.0f / 0.0f;
 const float PI = 3.1415926535f;
@@ -338,7 +341,7 @@ void main() {
     ivec2 texel_coord = ivec2(gl_GlobalInvocationID.xy);
 	ivec2 image_dimensions = imageSize(img_output);
     state = gl_GlobalInvocationID.x + image_dimensions.x * gl_GlobalInvocationID.y;
-
+    state += rng_seed;
     vec3 w,u,v;
     w = normalize(camera_center - look_at);
     u = normalize(cross(vec3(0,1,0),w));
@@ -356,5 +359,6 @@ void main() {
     vec3 viewport_location = viewport_bottom_left + texel_coord.x * (viewport_u/image_dimensions.x) + texel_coord.y * (viewport_v/image_dimensions.y);
 
     vec3 r_color = send_rays(viewport_location,u,v);
-    imageStore(img_output, texel_coord, vec4(r_color, 1.0f));
+    vec4 prev_color = imageLoad(img_output, texel_coord);
+    imageStore(img_output, texel_coord, prev_color * (1-1.0f/frames_num) + vec4(r_color, 1.0f) * (1.0f/frames_num));
 }

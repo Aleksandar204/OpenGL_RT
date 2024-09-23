@@ -7,6 +7,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     glViewport(0,0,width,height);
     current_renderer->WINDOW_HEIGHT = height;
     current_renderer->WINDOW_WIDTH = width;
+    current_renderer->resetCombinedFrames();
 
     glDeleteTextures(1,&current_renderer->quad_texture);
     glGenTextures(1,&current_renderer->quad_texture);
@@ -70,6 +71,7 @@ Renderer::Renderer()
 
     quadShader = new Shader("resources/shaders/quad.vert", "resources/shaders/quad.frag");
     renderShader = new Shader("resources/shaders/raytrace.comp");
+    renderShader->setInt("rng_seed", std::rand());
     glGenTextures(1, &quad_texture);
 
     glActiveTexture(GL_TEXTURE0);
@@ -158,6 +160,15 @@ void Renderer::renderRaytrace(Scene *render_scene)
 
     renderShader->setInt("sample_count", sample_count);
     renderShader->setInt("bounce_count", bounce_count);
+    if(combine_frames)
+    {
+        renderShader->setInt("rng_seed", std::rand());
+        renderShader->setInt("frames_num", frames_num++);
+    }
+    else
+    {
+        renderShader->setInt("frames_num", 1);
+    }
 
     glDispatchCompute((GLuint)(WINDOW_WIDTH*resolution_scale) / 8 +1, (GLuint)(WINDOW_HEIGHT*resolution_scale) / 8 +1, 1);
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
