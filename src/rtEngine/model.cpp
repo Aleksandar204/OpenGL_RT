@@ -89,11 +89,25 @@ std::vector<Texture *> Model::loadMaterialTextures(aiMaterial *mat, aiTextureTyp
     {
         aiString str;
         mat->GetTexture(type, i, &str);
+        bool skip = false;
+        for (auto tex : m_loaded_textures)
+        {
+            std::string filepath = directory + '/' + std::string(str.C_Str());
+            if(std::strcmp(tex->path.data(), filepath.c_str()) == 0)
+            {
+                skip = true;
+                textures.push_back(tex);
+                break;
+            }
+        }
+        if(skip)
+            continue;
         std::string filepath = directory + '/' + std::string(str.C_Str());
         std::cout << "Loading texture: " << filepath << " as " << type << std::endl;
         Texture *tex = new Texture(filepath.c_str());
         tex->type = typeName;
         textures.push_back(tex);
+        m_loaded_textures.push_back(tex);
     }
     return textures;
 }

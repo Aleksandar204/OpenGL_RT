@@ -8,6 +8,8 @@
 
 class Model
 {
+private:
+    std::vector<Texture*> m_loaded_textures; 
 public:
     std::vector<Mesh> meshes;
     std::string directory;

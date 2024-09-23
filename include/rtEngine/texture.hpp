@@ -14,6 +14,7 @@ private:
     GLuint texture_id;
     GLuint64 m_gpu_texture_handle;
 public:
+    std::string path;
     std::string type;
     Texture(const char *texturePath);
 
