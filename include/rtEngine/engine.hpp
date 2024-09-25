@@ -17,7 +17,7 @@ public:
     Input input = Input(this->m_renderer.window);
 private:
     double m_delta_time, m_last_frametime;
-
+    void exportRender();
     
     std::vector<Scene *> m_scenes;
     Scene *m_current_scene = nullptr;

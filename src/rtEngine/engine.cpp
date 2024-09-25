@@ -3,6 +3,7 @@
 #include "../imgui/imgui.h"
 #include "../imgui/imgui_impl_glfw.h"
 #include "../imgui/imgui_impl_opengl3.h"
+#include <stb/stb_image_write.h>
 
 void Engine::run()
 {
@@ -29,21 +30,25 @@ void Engine::run()
 
         // ImGui::ShowDemoWindow(); // Show demo window! :)
 
-
         ImGui::Begin("Renderer settings", nullptr, 0);
         ImGui::Checkbox("Use Raytracing", &m_renderer.use_raytracing);
-        ImGui::Text("FPS: %.2f\nFrametime: %.2f ms", 1/m_delta_time, m_delta_time * 1000);
+        ImGui::Text("FPS: %.2f\nFrametime: %.2f ms", 1 / m_delta_time, m_delta_time * 1000);
         ImGui::InputInt("samples", &m_renderer.sample_count);
         ImGui::InputInt("bounces", &m_renderer.bounce_count);
         ImGui::Text("Raytracing render scale:");
-        if(ImGui::SliderFloat("##", &m_renderer.resolution_scale, 0.01f, 1.0f))
+        if (ImGui::SliderFloat("##", &m_renderer.resolution_scale, 0.01f, 1.0f))
         {
             m_renderer.triggerResize();
         }
-        if(ImGui::Checkbox("Combine frames", &m_renderer.combine_frames))
+        if (ImGui::Checkbox("Combine frames", &m_renderer.combine_frames))
         {
             m_renderer.resetCombinedFrames();
         }
+        if (ImGui::Button("Export render"))
+        {
+            exportRender();
+        }
+
         ImGui::End();
 
         ImGui::Begin("Scene", nullptr, 0);
@@ -53,7 +58,7 @@ void Engine::run()
         {
             if (ImGui::CollapsingHeader(obj->name.c_str()))
             {
-                ImGui::BeginChild(obj->name.c_str(), ImVec2(0,0), ImGuiChildFlags_AutoResizeY);
+                ImGui::BeginChild(obj->name.c_str(), ImVec2(0, 0), ImGuiChildFlags_AutoResizeY);
                 ImGui::Text("Position: ");
                 ImGui::Text("%.3f %.3f %.3f", obj->getGlobalPosition().x, obj->getGlobalPosition().y, obj->getGlobalPosition().z);
                 ImGui::Text("Rotation: ");
@@ -131,4 +136,26 @@ void Engine::setCurrentScene(std::string scene_name)
 Scene *Engine::getCurrentScene()
 {
     return m_current_scene;
+}
+
+inline float linear_to_gamma(float linear_component)
+{
+    if (linear_component > 0)
+        return std::sqrt(linear_component);
+
+    return 0;
+}
+
+void Engine::exportRender()
+{
+    glBindTexture(GL_TEXTURE_2D, m_renderer.quad_texture);
+    std::vector<float> pixels(m_renderer.WINDOW_WIDTH * m_renderer.WINDOW_HEIGHT * 4);
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, pixels.data());
+    std::vector<unsigned char> image(m_renderer.WINDOW_WIDTH * m_renderer.WINDOW_HEIGHT * 4);
+    for (int i = 0; i < m_renderer.WINDOW_WIDTH * m_renderer.WINDOW_HEIGHT * 4; i++)
+    {
+        image[i] = static_cast<unsigned char>(linear_to_gamma(pixels[i]) * 255.0f);
+    }
+    stbi_flip_vertically_on_write(true);
+    stbi_write_png("render_export.png", m_renderer.WINDOW_WIDTH, m_renderer.WINDOW_HEIGHT, 4, image.data(), m_renderer.WINDOW_WIDTH * 4);
 }
