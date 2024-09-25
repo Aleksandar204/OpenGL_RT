@@ -38,7 +38,7 @@ To implement:
  - Refraction and semi transparent materials
  - Normalmapping
  - Emmision maps
- - Exporting render to image
+ - ~~Exporting render to image~~
 
 ## Resources and libraries used
 - https://learnopengl.com/
