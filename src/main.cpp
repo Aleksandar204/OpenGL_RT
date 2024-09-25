@@ -92,9 +92,9 @@ int main()
     // shrek->model = new Model("resources/models/shrek/shrek_scaled.obj");
     // e.getCurrentScene()->addGameObject(shrek);
 
-    // GameObject *crate = new GameObject("Wooden Crate", glm::vec3(2.0f, 1.0f, -4.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f),e);
-    // crate->model = new Model("resources/models/container/untitled.obj");
-    // e.getCurrentScene()->addGameObject(crate);
+    GameObject *crate = new GameObject("Wooden Crate", glm::vec3(2.0f, 1.0f, -4.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f),e);
+    crate->model = new Model("resources/models/lightcube/lightcube.obj");
+    e.getCurrentScene()->addGameObject(crate);
 
     // GameObject *crate2 = new GameObject("Wooden Crate 2", glm::vec3(0.0f, 2.0f, 0.0f), glm::vec3(0.0f, 30.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f),e);
     // crate2->model = new Model("resources/models/container/untitled.obj");

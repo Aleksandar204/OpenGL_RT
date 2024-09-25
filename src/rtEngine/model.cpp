@@ -36,6 +36,7 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
     std::vector<Texture *> specularMaps;
     std::vector<Texture *> normalMaps;
     std::vector<Texture *> heightMaps;
+    std::vector<Texture *> emissionMaps;
 
     for (GLuint i = 0; i < mesh->mNumVertices; i++)
     {
@@ -76,9 +77,10 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
     aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
     diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
     specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
-    normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
-    heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
-    return Mesh(vertices, indices, diffuseMaps, specularMaps, normalMaps, heightMaps);
+    normalMaps = loadMaterialTextures(material, aiTextureType_NORMALS, "texture_normal");
+    heightMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_height");
+    emissionMaps = loadMaterialTextures(material, aiTextureType_EMISSIVE, "texture_emission");
+    return Mesh(vertices, indices, diffuseMaps, specularMaps, normalMaps, heightMaps, emissionMaps);
 }
 
 std::vector<Texture *> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName)

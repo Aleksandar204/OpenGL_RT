@@ -1,6 +1,6 @@
 #include <rtEngine/mesh.hpp>
 
-Mesh::Mesh(std::vector<Vertex> vert, std::vector<GLuint> ind, std::vector<Texture *> diffuse, std::vector<Texture *> specular, std::vector<Texture *> normalmap, std::vector<Texture *> height)
+Mesh::Mesh(std::vector<Vertex> vert, std::vector<GLuint> ind, std::vector<Texture *> diffuse, std::vector<Texture *> specular, std::vector<Texture *> normalmap, std::vector<Texture *> height, std::vector<Texture*> emission)
 {
     vertices = vert;
     indices = ind;
@@ -8,6 +8,7 @@ Mesh::Mesh(std::vector<Vertex> vert, std::vector<GLuint> ind, std::vector<Textur
     specular_maps = specular;
     height_maps = height;
     normal_maps = normalmap;
+    emission_maps = emission;
 
     glGenVertexArrays(1, &m_vao);
     glGenBuffers(1, &m_vbo);

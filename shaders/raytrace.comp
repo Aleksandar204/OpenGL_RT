@@ -24,7 +24,7 @@ struct Mesh
     int indices_index_offset;
     sampler2D albedo_texture_handle;
     sampler2D specular_texture_handle;
-    sampler2D normal_texture_handle;
+    sampler2D emission_texture_handle;
     mat4 model_matrix; // converts local coords to world
     mat4 inverse_model_matrix; // converts world coords to local
     int vertex_index_offset;
@@ -278,14 +278,24 @@ HitRecord calculate_collision_bvh(Ray world_space_ray)
 
             // Sample textures mesh from triangle UV coordinates stored in the HitRecord albedo
             vec2 tp = closest_hit.hit_material.albedo.xy;
+
             if(data_meshes[i].material.albedo.r == -1.0f)
                 closest_hit.hit_material.albedo = texture(data_meshes[i].albedo_texture_handle, tp).rgb;
             else
                 closest_hit.hit_material.albedo = data_meshes[i].material.albedo;
+
             if(data_meshes[i].material.smoothness == -1.0f)
                 closest_hit.hit_material.smoothness = texture(data_meshes[i].specular_texture_handle, tp).r;
             else
                 closest_hit.hit_material.smoothness = data_meshes[i].material.smoothness;
+            
+            if(data_meshes[i].material.emmision_color.r == -1.0f)
+            {
+                closest_hit.hit_material.emmision_color = texture(data_meshes[i].emission_texture_handle, tp).rgb;
+                closest_hit.hit_material.emmision_strength = 10.0f;
+            }
+            else
+                closest_hit.hit_material.emmision_color = data_meshes[i].material.emmision_color;
         }
     }
     

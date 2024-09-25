@@ -6,23 +6,14 @@
 #include <rtEngine/shader.hpp>
 #include <rtEngine/scene.hpp>
 
-struct RTMaterialInfo
-{
-    alignas(16) glm::vec3 albedo;
-    alignas(16) glm::vec3 emmision_color;
-    alignas(4)  float emmision_strength;
-    alignas(4)  float smoothness;
-    alignas(8)  float padding[2];
-};
-
 struct RTMeshInfo
 {
-    RTMaterialInfo material;
+    Material material;
     int root_node_index;
     int indices_index_offset;
     GLuint64 diffuse_texture_handle;
     GLuint64 specular_texture_handle;
-    GLuint64 normal_texture_handle;
+    GLuint64 emission_texture_handle;
     glm::mat4 mesh_matrix;
     glm::mat4 inverse_mesh_matrix;
     int vertex_index_offset;

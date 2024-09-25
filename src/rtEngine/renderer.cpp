@@ -222,9 +222,7 @@ void Renderer::updateRaytraceBuffers(Scene *render_scene)
                 mesh_info.inverse_mesh_matrix = glm::inverse(gameobj->getGlobalModelMatrix());
 
                 // Set mesh material info for textureless objects and textures
-                mesh_info.material.albedo = glm::vec3(0.7f);
-                mesh_info.material.emmision_color = glm::vec3(0.0f);
-                mesh_info.material.smoothness = 0.0f;
+                mesh_info.material = mesh.material;
 
                 if (mesh.diffuse_maps.size() > 0)
                 {
@@ -235,6 +233,12 @@ void Renderer::updateRaytraceBuffers(Scene *render_scene)
                 {
                     mesh_info.specular_texture_handle = mesh.specular_maps[0]->getTextureHandle();
                     mesh_info.material.smoothness = -1.0f;
+                }
+                if (mesh.emission_maps.size() > 0)
+                {
+                    mesh_info.emission_texture_handle = mesh.emission_maps[0]->getTextureHandle();
+                    mesh_info.material.emmision_strength = 5.0f;
+                    mesh_info.material.emmision_color.r = -1.0f;
                 }
                 // if (mesh.normal_maps.size() > 0)
                 // {
