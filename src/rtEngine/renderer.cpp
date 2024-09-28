@@ -334,7 +334,14 @@ void Renderer::renderRaster(Scene *render_scene)
                 mesh.raster_shader.setMat4("projection", glm::perspective(glm::radians(caminfo.fov), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f));
 
                 if(mesh.diffuse_maps.size() > 0)
+                {
                     mesh.raster_shader.setBindlessTexture("albedo_texture_handle", mesh.diffuse_maps[0]->getTextureHandle());
+                    mesh.raster_shader.setInt("sample_albedo_texture", 1);
+                }
+                else
+                {
+                    mesh.raster_shader.setInt("sample_albedo_texture", 0);
+                }
 
                 glBindVertexArray(mesh.getVAO());
                 glDrawElements(GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, 0);

@@ -22,6 +22,7 @@ struct Material
     {
         this->albedo = glm::vec3(0.8f);
         this->emmision_strength = 0.0f;
+        this->emmision_color = glm::vec3(0.0f);
         this->smoothness = 0.0f;
     }
 };
