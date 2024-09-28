@@ -60,7 +60,7 @@ To port from CoaEngine:
 To implement:
  - Refraction and semi transparent materials
  - Normalmapping
- - Emmision maps
+ - ~~Emission maps~~
  - ~~Exporting render to image~~
 
 ## Resources and libraries used
