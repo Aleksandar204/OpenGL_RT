@@ -44,6 +44,8 @@ public:
     void renderFrame(Scene* render_scene);
     void triggerResize();
     void resetCombinedFrames() {frames_num = 1;}
+    inline int getScaledWidth() {return WINDOW_WIDTH * resolution_scale;}
+    inline int getScaledHeight() {return WINDOW_HEIGHT * resolution_scale;}
     
     GLFWwindow *window;
     GLuint quad_texture;

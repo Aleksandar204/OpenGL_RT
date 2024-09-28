@@ -149,14 +149,14 @@ inline float linear_to_gamma(float linear_component)
 void Engine::exportRender()
 {
     glBindTexture(GL_TEXTURE_2D, m_renderer.quad_texture);
-    std::vector<float> pixels(m_renderer.WINDOW_WIDTH * m_renderer.WINDOW_HEIGHT * 4);
+    std::vector<float> pixels(m_renderer.getScaledWidth() * m_renderer.getScaledHeight() * 4);
     glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, pixels.data());
-    std::vector<unsigned char> image(m_renderer.WINDOW_WIDTH * m_renderer.WINDOW_HEIGHT * 4);
-    for (int i = 0; i < m_renderer.WINDOW_WIDTH * m_renderer.WINDOW_HEIGHT * 4; i++)
+    std::vector<unsigned char> image(m_renderer.getScaledWidth() * m_renderer.getScaledHeight() * 4);
+    for (int i = 0; i < m_renderer.getScaledWidth() * m_renderer.getScaledHeight() * 4; i++)
     {
         image[i] = static_cast<unsigned char>(linear_to_gamma(pixels[i]) * 255.0f);
     }
     stbi_flip_vertically_on_write(true);
-    stbi_write_png("render_export.png", m_renderer.WINDOW_WIDTH, m_renderer.WINDOW_HEIGHT, 4, image.data(), m_renderer.WINDOW_WIDTH * 4);
+    stbi_write_png("render_export.png", m_renderer.getScaledWidth(), m_renderer.getScaledHeight(), 4, image.data(), m_renderer.getScaledWidth() * 4);
     std::cout << "Exported image" << std::endl;
 }

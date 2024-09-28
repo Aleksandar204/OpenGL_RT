@@ -17,7 +17,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, int(width * current_renderer->resolution_scale), int(height * current_renderer->resolution_scale), 0, GL_RGBA, GL_FLOAT, nullptr);    
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, current_renderer->getScaledWidth(), current_renderer->getScaledHeight(), 0, GL_RGBA, GL_FLOAT, nullptr);    
 
     glBindImageTexture(0, current_renderer->quad_texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -170,7 +170,7 @@ void Renderer::renderRaytrace(Scene *render_scene)
         renderShader->setInt("frames_num", 1);
     }
 
-    glDispatchCompute((GLuint)(WINDOW_WIDTH*resolution_scale) / 8 +1, (GLuint)(WINDOW_HEIGHT*resolution_scale) / 8 +1, 1);
+    glDispatchCompute((GLuint)getScaledWidth() / 8 +1, (GLuint)getScaledHeight() / 8 +1, 1);
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
     quadShader->use();
@@ -237,7 +237,7 @@ void Renderer::updateRaytraceBuffers(Scene *render_scene)
                 if (mesh.emission_maps.size() > 0)
                 {
                     mesh_info.emission_texture_handle = mesh.emission_maps[0]->getTextureHandle();
-                    mesh_info.material.emmision_strength = 50.0f;
+                    mesh_info.material.emmision_strength = 10.0f;
                     mesh_info.material.emmision_color.r = -1.0f;
                 }
                 // if (mesh.normal_maps.size() > 0)
