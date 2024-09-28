@@ -237,7 +237,7 @@ void Renderer::updateRaytraceBuffers(Scene *render_scene)
                 if (mesh.emission_maps.size() > 0)
                 {
                     mesh_info.emission_texture_handle = mesh.emission_maps[0]->getTextureHandle();
-                    mesh_info.material.emmision_strength = 5.0f;
+                    mesh_info.material.emmision_strength = 50.0f;
                     mesh_info.material.emmision_color.r = -1.0f;
                 }
                 // if (mesh.normal_maps.size() > 0)

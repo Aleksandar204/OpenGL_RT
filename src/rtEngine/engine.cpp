@@ -141,7 +141,7 @@ Scene *Engine::getCurrentScene()
 inline float linear_to_gamma(float linear_component)
 {
     if (linear_component > 0)
-        return std::sqrt(linear_component);
+        return std::min(std::sqrt(linear_component), 1.0f);
 
     return 0;
 }
@@ -158,4 +158,5 @@ void Engine::exportRender()
     }
     stbi_flip_vertically_on_write(true);
     stbi_write_png("render_export.png", m_renderer.WINDOW_WIDTH, m_renderer.WINDOW_HEIGHT, 4, image.data(), m_renderer.WINDOW_WIDTH * 4);
+    std::cout << "Exported image" << std::endl;
 }
