@@ -2,9 +2,7 @@
 
 #include <vector>
 
-#ifdef _WIN32
 #define GLM_ENABLE_EXPERIMENTAL
-#endif
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
