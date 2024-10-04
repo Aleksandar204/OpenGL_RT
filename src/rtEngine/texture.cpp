@@ -16,26 +16,31 @@ Texture::Texture(const char *texturePath)
 
     int width, height, nrChannels;
     stbi_set_flip_vertically_on_load(true);
-    unsigned char *data = stbi_load(texturePath, &width, &height, &nrChannels, 0);
+    //unsigned char *data = stbi_load(texturePath, &width, &height, &nrChannels, 0);
+    float *data = stbi_loadf(texturePath, &width, &height, &nrChannels, 0);
 
-    GLenum format;
+    GLenum format, internalformat;
     switch (nrChannels)
     {
     case 1:
         format = GL_RED;
+        internalformat = GL_RED;
         break;
     case 2:
         format = GL_RG;
+        internalformat = GL_RG32F;
         break;
     case 3:
         format = GL_RGB;
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        internalformat = GL_RGB32F;
+        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         break;
     case 4:
         format = GL_RGBA;
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // Transparent texture edges have artifacts around the edges when repeating, this should be GL_CLAMP but it messes up other things TODO: find solution
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        internalformat = GL_RGBA32F;
+        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // Transparent texture edges have artifacts around the edges when repeating, this should be GL_CLAMP but it messes up other things TODO: find solution
+        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         break;
     default:
         throw std::runtime_error("Texture format not recognised");
@@ -45,7 +50,7 @@ Texture::Texture(const char *texturePath)
     {
         // std::cout << nrChannels << std::endl;
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glTexImage2D(GL_TEXTURE_2D, 0, internalformat, width, height, 0, format, GL_FLOAT, data);
         glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
         glGenerateMipmap(GL_TEXTURE_2D);

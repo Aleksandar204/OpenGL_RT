@@ -91,10 +91,12 @@ uniform int rng_seed;
 
 uniform int frames_num;
 
+layout(bindless_sampler) uniform sampler2D skybox_texture;
+uniform vec3 sky_color;
+
 const float INFINITY = 1.0f / 0.0f;
 const float PI = 3.1415926535f;
 
-#define GLOBAL_LIGHT vec3(0.2, 0.8, 1.0);
 // #define GLOBAL_LIGHT vec3(0.005, 0.01, 0.02);
 // #define GLOBAL_LIGHT vec3(0.005);
 
@@ -136,6 +138,18 @@ vec2 random_in_circle()
 vec3 at(Ray r, float dist)
 {
     return r.origin + dist * r.direction;
+}
+
+vec3 sample_sky_color(vec3 dir)
+{
+    if(sky_color.r != -1.0f)
+        return sky_color;
+    dir = normalize(dir);
+    float theta = acos(-dir.y);
+    float phi = atan(dir.z,dir.x) + PI;
+    vec2 uv = vec2(phi/ (2*PI), theta / PI);
+    vec3 col = texture(skybox_texture, uv).rgb;
+    return col;
 }
 
 HitRecord hit_triangle(int ind1, int ind2, int ind3, Ray r)
@@ -336,7 +350,7 @@ vec3 trace_ray_bvh(vec3 ray_origin, vec3 ray_dir)
         }
         else
         {
-            in_light += ray_col * GLOBAL_LIGHT;
+            in_light += ray_col * sample_sky_color(ray.direction);
             break;
         }
     }

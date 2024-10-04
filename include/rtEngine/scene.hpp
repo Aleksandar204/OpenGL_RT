@@ -9,9 +9,12 @@ class Scene
 {
 private:
     bool m_gameobjects_changed = false;
+    Texture *m_skybox = nullptr;
 public:
     std::string name;
     std::vector<GameObject *> game_objects;
+
+    glm::vec3 default_sky_color = glm::vec3(0.2f, 0.8f, 1.0f);
 
     Scene(std::string scene_name)
     {
@@ -29,5 +32,17 @@ public:
     bool getChangedFlag()
     {
         return m_gameobjects_changed;
+    }
+    void setSkybox(std::string filepath)
+    {
+        if(m_skybox != nullptr)
+        {
+            delete m_skybox;
+        }
+        m_skybox = new Texture(filepath.c_str());
+    }
+    Texture* getSkyboxTexture()
+    {
+        return m_skybox;
     }
 };

@@ -83,30 +83,31 @@ int main()
     Engine e;
     e.addScene("game");
     e.setCurrentScene("game");
+    e.getCurrentScene()->setSkybox("resources/textures/rosendal_plains_2_4k.hdr");
 
-    // GameObject *dragon = new GameObject("Dragon", glm::vec3(-7.0f, 5.0f, -7.0f), glm::vec3(0.0f, -70.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f),e);
-    // dragon->model = new Model("resources/models/dragon/dragon_scaled.obj");
-    // e.getCurrentScene()->addGameObject(dragon);
+    GameObject *dragon = new GameObject("Dragon", glm::vec3(-7.0f, 5.0f, -7.0f), glm::vec3(0.0f, -70.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f),e);
+    dragon->model = new Model("resources/models/dragon/dragon_scaled.obj");
+    e.getCurrentScene()->addGameObject(dragon);
 
     // GameObject *shrek = new GameObject("Shrek", glm::vec3(7.0f, 0.0f, -8.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f),e);
     // shrek->model = new Model("resources/models/shrek/shrek_scaled.obj");
     // e.getCurrentScene()->addGameObject(shrek);
 
     GameObject *crate = new GameObject("Wooden Crate", glm::vec3(2.0f, 1.0f, -4.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f),e);
-    crate->model = new Model("resources/models/lightcube/lightcube.obj");
+    crate->model = new Model("resources/models/container/untitled.obj");
     e.getCurrentScene()->addGameObject(crate);
 
-    // GameObject *crate2 = new GameObject("Wooden Crate 2", glm::vec3(0.0f, 2.0f, 0.0f), glm::vec3(0.0f, 30.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f),e);
-    // crate2->model = new Model("resources/models/container/untitled.obj");
-    // crate->addChild(crate2);
+    GameObject *crate2 = new GameObject("Wooden Crate 2", glm::vec3(0.0f, 2.0f, 0.0f), glm::vec3(0.0f, 30.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f),e);
+    crate2->model = new Model("resources/models/container/untitled.obj");
+    crate->addChild(crate2);
 
-    GameObject *scene = new GameObject("Scenery", glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.05f, 0.05f, 0.05f),e);
-    scene->model = new Model("resources/models/sponza2/sponza.obj");
-    e.getCurrentScene()->addGameObject(scene);
+    // GameObject *scene = new GameObject("Scenery", glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.05f, 0.05f, 0.05f),e);
+    // scene->model = new Model("resources/models/sponza2/sponza.obj");
+    // e.getCurrentScene()->addGameObject(scene);
 
-    // GameObject *ground_plane = new GameObject("Ground plane", glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f),e);
-    // ground_plane->model = new Model("resources/models/ground/TestPlane.obj");
-    // e.getCurrentScene()->addGameObject(ground_plane);
+    GameObject *ground_plane = new GameObject("Ground plane", glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f),e);
+    ground_plane->model = new Model("resources/models/ground/TestPlane.obj");
+    e.getCurrentScene()->addGameObject(ground_plane);
 
     GameObject *camera = new GameObject("Main Camera", glm::vec3(0.0f, 5.0f, 4.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f),e);
     camera->addComponent(new Camera());
