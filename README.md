@@ -19,6 +19,11 @@ The camera is controlled using WASD for movement and Q and E for rotation.
     <img src="examples/render_sponza_dark.png" alt="Sponza test model in the dark with an emmisive cube" style="width:500px">
    </td>
   </tr>
+  <tr>
+   <td align=center>
+    <img src="examples/render_skybox_shadow.png" alt="Sponza test model in the dark with an emmisive cube" style="width:500px">
+   </td>
+  </tr>
  </tbody>
 </table>
 
@@ -54,7 +59,7 @@ cmake --build build
 ## TODO
 To port from CoaEngine:
  - Lit shader for raster
- - Skybox for both renderers
+ - Skybox for raster renderer
  - Transparency
 
 To implement:
