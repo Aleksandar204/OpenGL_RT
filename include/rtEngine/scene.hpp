@@ -20,6 +20,16 @@ public:
     {
         name = scene_name;
     }
+    ~Scene()
+    {
+        std::cout << "Deleting scene " + name << std::endl;
+        delete m_skybox;
+        for(auto &obj : game_objects)
+        {
+            delete obj;
+        }
+        std::cout << "Deleted scene " + name << std::endl;
+    }
     void addGameObject(GameObject *game_object)
     {
         game_objects.push_back(game_object);

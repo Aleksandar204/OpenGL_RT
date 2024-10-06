@@ -29,4 +29,6 @@ public:
     /// @param modelPath Path of the model file
     /// @param sh Default shader for meshes of this model
     Model(std::string model_path, Shader sh);
+
+    ~Model();
 };

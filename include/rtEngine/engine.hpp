@@ -13,8 +13,9 @@ public:
     void removeScene(std::string scene_name);
     void setCurrentScene(std::string scene_name);
     Scene* getCurrentScene();
-    Renderer m_renderer;
+    Renderer m_renderer; // TODO: move this to private when finishing input system
     Input input = Input(this->m_renderer.window);
+    ~Engine();
 private:
     double m_delta_time, m_last_frametime;
     void exportRender();

@@ -198,7 +198,7 @@ void Renderer::renderRaytrace(Scene *render_scene)
     }
     if(m_camera_gameobject == nullptr)
         throw std::runtime_error("Camera not found!");
-    for(auto comp : m_camera_gameobject->components)
+    for(auto const &comp : m_camera_gameobject->components)
     {
         if(Camera *c = dynamic_cast<Camera *>(comp))
         {
@@ -249,7 +249,7 @@ void Renderer::updateRaytraceBuffers(Scene *render_scene)
     m_all_scene_nodes.clear();
     m_all_scene_vertices.clear();
     std::vector<GameObject *> current_scene_gameobjects;
-    for (auto gameobj : render_scene->game_objects)
+    for (auto const &gameobj : render_scene->game_objects)
     {
         current_scene_gameobjects.push_back(gameobj);
         gameobj->addChildrenRecursive(current_scene_gameobjects);
@@ -258,11 +258,11 @@ void Renderer::updateRaytraceBuffers(Scene *render_scene)
     GLuint indices_offset = 0;
     GLuint bvh_nodes_offset = 0;
 
-    for(auto gameobj : current_scene_gameobjects)
+    for(auto const &gameobj : current_scene_gameobjects)
     {
         if(m_camera_gameobject == nullptr)
         {
-            for(auto comp : gameobj->components)
+            for(auto const &comp : gameobj->components)
             {
                 if(Camera *c = dynamic_cast<Camera *>(comp))
                 {
@@ -273,7 +273,7 @@ void Renderer::updateRaytraceBuffers(Scene *render_scene)
         }
         if(gameobj->model != nullptr)
         {
-            for(auto mesh : gameobj->model->meshes)
+            for(auto const &mesh : gameobj->model->meshes)
             {
                 RTMeshInfo mesh_info;
                 // Set model matrices for mesh
@@ -318,7 +318,7 @@ void Renderer::updateRaytraceBuffers(Scene *render_scene)
                 // Push all indices to buffer
                 // m_all_scene_indices.insert(m_all_scene_indices.end(),mesh.indices.begin(), mesh.indices.end());
                 indices_offset += mesh.indices.size();
-                for(auto tri : mesh.mesh_bvh.all_triangles)
+                for(auto const &tri : mesh.mesh_bvh.all_triangles)
                 {
                     m_all_scene_indices.push_back(mesh.indices[tri.v_first_index]);
                     m_all_scene_indices.push_back(mesh.indices[tri.v_first_index+1]);
@@ -364,7 +364,7 @@ void Renderer::updateRaytraceBuffers(Scene *render_scene)
 void Renderer::renderRaster(Scene *render_scene)
 {
     std::vector<GameObject *> current_scene_gameobjects;
-    for (auto gameobj : render_scene->game_objects)
+    for (auto const &gameobj : render_scene->game_objects)
     {
         current_scene_gameobjects.push_back(gameobj);
         gameobj->addChildrenRecursive(current_scene_gameobjects);
@@ -372,11 +372,11 @@ void Renderer::renderRaster(Scene *render_scene)
 
     bool found_cam = false;
 
-    for (auto gameobj : current_scene_gameobjects)
+    for (auto const &gameobj : current_scene_gameobjects)
     {
         if (!found_cam)
         {
-            for (auto comp : gameobj->components)
+            for (auto const &comp : gameobj->components)
             {
                 if (Camera *c = dynamic_cast<Camera *>(comp))
                 {
@@ -390,11 +390,11 @@ void Renderer::renderRaster(Scene *render_scene)
             }
         }
     }
-    for (auto gameobj : current_scene_gameobjects)
+    for (auto const &gameobj : current_scene_gameobjects)
     {
         if (gameobj->model != nullptr)
         {
-            for (auto mesh : gameobj->model->meshes)
+            for (auto &mesh : gameobj->model->meshes)
             {
                 mesh.raster_shader.use();
                 mesh.raster_shader.setMat4("model", gameobj->getGlobalModelMatrix());

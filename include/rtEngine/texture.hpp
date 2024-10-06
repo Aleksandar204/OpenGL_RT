@@ -20,7 +20,10 @@ public:
 
     ~Texture()
     {
+        std::cout << "Deleting texture " + path << std::endl;
+        glMakeTextureHandleNonResidentARB(m_gpu_texture_handle);
         glDeleteTextures(1,&texture_id);
+        std::cout << "Deleted texture " + path << std::endl;
     }
 
     void use()

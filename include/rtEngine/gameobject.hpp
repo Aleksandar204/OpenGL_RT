@@ -41,6 +41,21 @@ public:
     {
         this->name = name;
     }
+    ~GameObject()
+    {
+        std::cout << "Deleting GameObject " + name << std::endl;
+        if(model != nullptr)
+            delete model;
+        for(auto &comp : components)
+        {
+            delete comp; // Not sure why would components have a destructor but this is here if it is ever needed
+        }
+        for(auto &child : children)
+        {
+            delete child;
+        }
+        std::cout << "Deleted GameObject " + name << std::endl;
+    }
 
     void addChild(GameObject* child)
     {

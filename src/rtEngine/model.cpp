@@ -92,7 +92,7 @@ std::vector<Texture *> Model::loadMaterialTextures(aiMaterial *mat, aiTextureTyp
         aiString str;
         mat->GetTexture(type, i, &str);
         bool skip = false;
-        for (auto tex : m_loaded_textures)
+        for (auto const &tex : m_loaded_textures)
         {
             std::string filepath = directory + '/' + std::string(str.C_Str());
             if(std::strcmp(tex->path.data(), filepath.c_str()) == 0)
@@ -117,6 +117,16 @@ std::vector<Texture *> Model::loadMaterialTextures(aiMaterial *mat, aiTextureTyp
 Model::Model(std::string model_path)
 {
     loadModel(model_path);
+}
+
+Model::~Model()
+{
+    std::cout << "Deleting model" << std::endl;
+    for(auto &tex : m_loaded_textures)
+    {
+        delete tex;
+    }
+    std::cout << "Deleted model" << std::endl;
 }
 
 // Model::Model(std::string model_path, Shader sh)

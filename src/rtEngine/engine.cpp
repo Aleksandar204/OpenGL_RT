@@ -54,7 +54,7 @@ void Engine::run()
         ImGui::Begin("Scene", nullptr, 0);
         ImGui::Text("Current scene: %s", m_current_scene->name.c_str());
 
-        for (auto obj : m_current_scene->game_objects)
+        for (auto const &obj : m_current_scene->game_objects)
         {
             if (ImGui::CollapsingHeader(obj->name.c_str()))
             {
@@ -88,12 +88,12 @@ void Engine::run()
 void Engine::startUpdateCurrentScene()
 {
     std::vector<GameObject *> current_scene_gameobjects;
-    for (auto game_obj : m_current_scene->game_objects)
+    for (auto const &game_obj : m_current_scene->game_objects)
     {
         current_scene_gameobjects.push_back(game_obj);
         game_obj->addChildrenRecursive(current_scene_gameobjects);
     }
-    for (auto game_obj : current_scene_gameobjects)
+    for (auto const &game_obj : current_scene_gameobjects)
     {
         updateAndStart(game_obj);
     }
@@ -101,7 +101,7 @@ void Engine::startUpdateCurrentScene()
 
 void Engine::updateAndStart(GameObject *obj)
 {
-    for (auto component : obj->components)
+    for (auto const &component : obj->components)
     {
         if (!component->started)
         {
@@ -120,9 +120,23 @@ void Engine::addScene(std::string scene_name)
     m_scenes.push_back(new Scene(scene_name));
 }
 
+void Engine::removeScene(std::string scene_name)
+{
+    for(auto it = m_scenes.begin(); it != m_scenes.end(); ++it)
+    {
+        if((*it)->name == scene_name)
+        {
+            delete (*it);
+            m_scenes.erase(it);
+            return;
+        }
+    }
+    throw std::runtime_error("Could not find scene with name " + scene_name);
+}
+
 void Engine::setCurrentScene(std::string scene_name)
 {
-    for (auto scene : m_scenes)
+    for (auto const &scene : m_scenes)
     {
         if (scene->name == scene_name)
         {
@@ -159,4 +173,14 @@ void Engine::exportRender()
     stbi_flip_vertically_on_write(true);
     stbi_write_png("render_export.png", m_renderer.getScaledWidth(), m_renderer.getScaledHeight(), 4, image.data(), m_renderer.getScaledWidth() * 4);
     std::cout << "Exported image" << std::endl;
+}
+
+Engine::~Engine()
+{
+    std::cout << "Deleting engine" << std::endl;
+    for(auto &scene : m_scenes)
+    {
+        delete scene;
+    }
+    std::cout << "Deleted engine" << std::endl;
 }
