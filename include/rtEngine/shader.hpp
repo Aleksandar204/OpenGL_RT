@@ -13,6 +13,7 @@ public:
     Shader(std::string vertexPath, std::string fragmentPath);
     Shader(std::string computePath);
     void use();
+    void deleteShader();
 
     void setBool(const std::string &name, bool value) const
     {

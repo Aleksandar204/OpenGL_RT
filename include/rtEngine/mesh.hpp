@@ -33,4 +33,5 @@ public:
     {
         return m_vao;
     }
+    void deleteMeshData();
 };

@@ -35,3 +35,11 @@ Mesh::Mesh(std::vector<Vertex> vert, std::vector<GLuint> ind, std::vector<Textur
 
     mesh_bvh = BVH(vertices, indices);
 }
+
+void Mesh::deleteMeshData()
+{
+    glDeleteBuffers(1, &m_vbo);
+    glDeleteBuffers(1, &m_ebo);
+    glDeleteVertexArrays(1, &m_vao);
+    raster_shader.deleteShader();
+}

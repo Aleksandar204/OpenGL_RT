@@ -122,6 +122,10 @@ Model::Model(std::string model_path)
 Model::~Model()
 {
     std::cout << "Deleting model" << std::endl;
+    for(auto &mesh : meshes)
+    {
+        mesh.deleteMeshData();
+    }
     for(auto &tex : m_loaded_textures)
     {
         delete tex;

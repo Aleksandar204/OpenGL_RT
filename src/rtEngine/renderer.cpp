@@ -162,7 +162,9 @@ Renderer::Renderer()
 
 Renderer::~Renderer()
 {
+    quadShader->deleteShader();
     delete quadShader;
+    renderShader->deleteShader();
     delete renderShader;
     glDeleteVertexArrays(1, &quad_vao);
     glDeleteBuffers(1, &quad_vbo);
